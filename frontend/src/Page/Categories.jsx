@@ -278,9 +278,7 @@ function Categories() {
       </section>
 
 
-      {/* =====================================================
-          COMPLAINT CATEGORIES
-      ===================================================== */}
+   
       <section className="py-5 ">
 
         <div className="container-fluid cd2 py-5  p-5">
@@ -367,9 +365,7 @@ function Categories() {
       </section>
 
 
-      {/* =====================================================
-          COMMON ISSUES
-      ===================================================== */}
+     
       <section className="py-4  b5">
 
         <div className="container py-5">
@@ -567,11 +563,7 @@ function Categories() {
 
       </section>
 
-
-      {/* =====================================================
-          TRACK COMPLAINT
-      ===================================================== */}
-      <section className="py-5 b4 text-white mb-5 mt-5 ">
+           <section className="py-5 b4 text-white mb-5 mt-5 ">
 
         <div className="container py-2">
 
@@ -684,9 +676,6 @@ function Categories() {
 </section>
 
 
-      {/* =====================================================
-          COMPLAINT MODAL
-      ===================================================== */}
       <div
         className="modal fade"
         id="complaintModal"
