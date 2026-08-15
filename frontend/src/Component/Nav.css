@@ -1,6 +1,12 @@
+:root{
+    --ink:#16232F;
+    --teal-deep:#1F4F4D;
+}
+
 .custom-navbar{
-    background:#182235;
+    background:rgba(238,240,236,.92);
     padding:10px 0;
+    border-bottom:1.5px solid var(--ink);
 
 }
 .custom-navbar .container{
@@ -28,28 +34,45 @@
 }
 
 .nav-link{
-    color:#fff !important;
+    color:#0e0d0d !important;
     text-decoration:none;
     margin-left:40px;
     font-size:17px;
 }
 
 .nav-link:hover{
-    color:#d89d2a !important;
+    color:var(--ink) !important;
 }
 
 .complaint-btn{
-    background:#d89d2a;
-    color:#111;
-    border-radius:5px;
+    background-color :transparent !important;
+    color:black !important;
+    border :1.5px solid var(--ink);
+   font-weight:700 !important;
     padding:10px 22px;
     font-weight:500;
+    border-radius: 0 !important;
     
+    
+}
+.complaint-btn1{
+    background-color :var(--ink) !important;
+    color:white !important;
+   font-weight:700 !important;
+    padding:10px 22px;
+    font-weight:500;
+    border-radius: 0 !important;
+    
+}
+.complaint-btn1:hover{
+    background-color: var(--teal-deep) !important;
 }
 
 .complaint-btn:hover{
-    background:#b87f18;
-    color:#fff;
+    border :1.5px solid var(--ink);
+    background-color :var(--ink) !important;
+    color:white !important;
+    border-radius: 0 !important;
 }
 
 .menu-btn{

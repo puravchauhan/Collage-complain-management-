@@ -13,7 +13,7 @@ const Navbar = () => {
 
           
           <Link className="navbar-brand d-flex align-items-center" to="/">
-  <img src="src/assets/3.png"  alt="logo" width="185" height="50" />
+  <img src="src/assets/4.png"  alt="logo" width="195" height="60" />
 </Link>
 
           {/* Desktop Menu */}
@@ -21,6 +21,7 @@ const Navbar = () => {
             <Link className="nav-link" to="/">
               How it works
             </Link>
+            
 
             <Link className="nav-link" to="/categories">
               Categories
@@ -30,8 +31,17 @@ const Navbar = () => {
               Track a case
             </Link>
 
-            <Link className="btn complaint-btn ms-3" to="/complaint">
-              File a complaint
+            <Link className="nav-link me-3 ms-3"  to="/about">
+             About
+            </Link>
+
+
+            <Link className="btn complaint-btn me-2 ms-3" to="/login">
+             Login
+            </Link>
+
+            <Link className="btn complaint-btn1 ms-3" to="/register">
+              Register
             </Link>
           </div>
 

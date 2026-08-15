@@ -1,0 +1,250 @@
+
+
+/* =========================
+   INTRO
+========================= */
+
+.about-intro {
+  background: #fff;
+  padding-top: 10%;
+  padding-bottom: 10%;
+
+  
+  
+}
+body{
+     background: #f5f1e8 !important;
+}
+
+.about-label {
+  color: #b45b36;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.about-intro h2 {
+  color: #11233d;
+  font-size: 42px;
+  line-height: 1.2;
+}
+
+.intro-large {
+  font-family: "Fraunces", serif;
+  font-size: 27px;
+  line-height: 1.5;
+  color: #182235;
+}
+
+.intro-small {
+  color: #666;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+:root {
+  --about-navy: #11233d;
+  --about-subnavy: #232d40e3;
+  --about-paper: #EEF0EC;
+  --about-white: #FFFFFF;
+  --about-ink: #16232F;
+  --about-gold: #d9a441;
+}
+
+
+/* HERO */
+
+.aboutHero {
+  background-color: var(--about-navy);
+  padding-bottom: 5%;
+  padding-top: 5%;
+  
+}
+
+.aboutBadge {
+  display: inline-block;
+     color: #b45b36;
+    letter-spacing: 3px;
+    font-size: 13px;
+ 
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.aboutBadgeDark {
+  display: inline-block;
+     color: #b45b36;
+    letter-spacing: 3px;
+    font-size: 13px;
+ 
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.heroDescription {
+  max-width: 650px;
+  line-height: 1.8;
+}
+
+.aboutHeroCard {
+  background-color: var(--about-subnavy);
+}
+
+
+/* ALL ICONS */
+
+.aboutIcon {
+  color: var(--about-gold);
+}
+
+
+/* BUTTONS */
+
+.aboutLightButton {
+  background-color: var(--about-paper);
+  color: var(--about-navy);
+}
+
+.aboutLightButton:hover {
+  background-color: var(--about-white);
+  color: var(--about-navy);
+}
+
+.aboutDarkButton {
+  background-color: var(--about-navy);
+  color: var(--about-white);
+}
+
+.aboutDarkButton:hover {
+  background-color: var(--about-subnavy);
+  color: var(--about-white);
+}
+
+
+/* SECTIONS */
+
+.aboutPaperSection {
+  background-color: var(--about-paper);
+  color: var(--about-ink);
+  padding-top: 7% !important;
+  padding-bottom: 6% !important;
+  
+}
+
+.aboutWhiteSection {
+  background-color: var(--about-white);
+  color: var(--about-ink);
+   padding-top: 7% !important;
+  padding-bottom: 7% !important;
+}
+
+.aboutUsersSection {
+  background-color: var(--about-navy);
+  padding-top: 10% !important;
+  padding-bottom: 10% !important;
+}
+
+.aboutCta {
+  background-color: var(--about-white);
+  color: var(--about-ink);
+}
+
+
+/* CARDS */
+
+.aboutInfoCard {
+  background-color: var(--about-white);
+  border: 1px solid #dfe2df;
+}
+
+.aboutReasonCard {
+  background-color: #f5f1e8;
+}
+
+.aboutStepCard {
+  border: 1px solid #e0e2df;
+}
+
+.aboutUserCard {
+  background-color: var(--about-subnavy);
+}
+
+
+/* STEP NUMBER */
+
+.aboutStepNumber {
+  color: var(--about-gold);
+}
+
+
+/* MOBILE */
+
+@media (max-width: 576px) {
+
+  .aboutHero h1 {
+    font-size: 34px;
+  }
+
+  .aboutPaperSection,
+  .aboutWhiteSection,
+  .aboutUsersSection,
+  .aboutCta {
+    padding-top: 30px !important;
+    padding-bottom: 30px !important;
+  }
+
+}
+
+/* ================= FEEDBACK ================= */
+
+.aboutFeedbackCard {
+  background-color: var(--about-white);
+  border: 1px solid #dfe2df;
+  border-radius: 16px;
+  padding: 28px;
+  min-height: 270px;
+}
+
+.aboutFeedbackStars {
+  color: var(--about-gold);
+  font-size: 18px;
+  letter-spacing: 3px;
+}
+
+.aboutFeedbackAvatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: var(--about-navy);
+  color: var(--about-white);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 700;
+}
+
+.aboutFeedbackSwiper {
+  padding-bottom: 45px;
+}
+
+.aboutFeedbackSwiper .swiper-pagination-bullet-active {
+  background-color: var(--about-gold);
+}
+.aboutHeroSwiper {
+  padding-bottom: 35px;
+}
+
+.aboutSwiperImage {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  
+}
+
+.aboutHeroSwiper .swiper-pagination-bullet-active {
+  background: #d9a441;
+}

@@ -1,0 +1,10 @@
+:root{
+     --navy: #11233d;
+     --subnavy : #232d40;
+}
+.bg2{
+background-color: var(--subnavy);
+}
+*{
+    font-family: "'JetBrains Mono', monospace";
+}
