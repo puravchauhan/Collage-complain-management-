@@ -98,34 +98,63 @@ const Register = () => {
   };
 
   // Submit
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const validationErrors = validateForm();
+  const validationErrors = validateForm();
 
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "https://localhost:7277/api/Auth/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          studentId: formData.studentId,
+          email: formData.email,
+          phone: formData.phone,
+          department: formData.department,
+          semester: formData.semester,
+          password: formData.password,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(data.message);
+
+      setFormData({
+        fullName: "",
+        studentId: "",
+        email: "",
+        phone: "",
+        department: "",
+        semester: "",
+        password: "",
+        confirmPassword: "",
+      });
+    } else {
+      alert(data.message || "Registration failed.");
     }
 
-    console.log("Registration Data:", formData);
+  } catch (error) {
+    console.error("Registration error:", error);
 
-    alert("Account created successfully!");
-
-    // Clear form
-    setFormData({
-      fullName: "",
-      studentId: "",
-      email: "",
-      phone: "",
-      department: "",
-      semester: "",
-      password: "",
-      confirmPassword: "",
-    });
-
-    setErrors({});
-  };
+    alert(
+      "Cannot connect to backend. Make sure ASP.NET is running."
+    );
+  }
+};
 
   return (
     <div className="register-page">
