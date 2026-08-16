@@ -10,7 +10,7 @@ import StatCard from "../components/StatCard";
 import IconBadge from "../components/IconBadge";
 import Pill from "../components/Pill";
 
-export default function OverviewTab({ complaints, admin }) {
+export default function OverviewTab({ complaints }) {
   const total = complaints.length;
   const pending = complaints.filter((c) => c.status === "Pending").length;
   const inProgress = complaints.filter((c) => c.status === "In Progress").length;
@@ -35,11 +35,6 @@ export default function OverviewTab({ complaints, admin }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-      {admin && (
-        <div className="overview-welcome">
-          Welcome back, <b>{admin.name.split(" ")[0]}</b> — here's what's happening across campus today.
-        </div>
-      )}
       <div className="stat-grid">
         <StatCard label="Total complaints" value={total} sub="Since Aug 1, 2026" icon={ClipboardList} accent={C.navy} />
         <StatCard label="Pending" value={pending} sub="Awaiting assignment" icon={AlertTriangle} accent={C.warn} />
