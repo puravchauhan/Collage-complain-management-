@@ -3,6 +3,7 @@ import {
   LayoutDashboard, ClipboardList, Wrench, Users, BarChart3, Settings,
   TicketCheck, LogOut, X,
 } from "lucide-react";
+import { DEFAULT_ADMIN, initialsOf } from "../data/adminData";
 
 export const NAV_ITEMS = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -14,7 +15,7 @@ export const NAV_ITEMS = [
 ];
 
 /** Navy sidebar. Slides in as an overlay drawer on mobile via the "open" class. */
-export default function Sidebar({ active, onSelect, isOpen, onClose }) {
+export default function Sidebar({ active, onSelect, isOpen, onClose, onProfileClick, admin = DEFAULT_ADMIN }) {
   return (
     <div className={`sidebar${isOpen ? " open" : ""}`}>
       <div className="sidebar-brand">
@@ -48,13 +49,21 @@ export default function Sidebar({ active, onSelect, isOpen, onClose }) {
       })}
 
       <div className="sidebar-footer">
-        <div className="sidebar-user">
-          <div className="avatar">AD</div>
+        <div
+          className={`sidebar-user${active === "profile" ? " active" : ""}`}
+          onClick={() => {
+            onProfileClick?.();
+            onClose();
+          }}
+          role="button"
+          tabIndex={0}
+        >
+          <div className="avatar">{initialsOf(admin.name)}</div>
           <div>
-            <div className="sidebar-user-name">Admin Desai</div>
-            <div className="sidebar-user-role">Super Admin</div>
+            <div className="sidebar-user-name">{admin.name}</div>
+            <div className="sidebar-user-role">{admin.role}</div>
           </div>
-          <LogOut size={15} color="#8b93a5" style={{ marginLeft: "auto" }} />
+          <LogOut size={15} color="#8b93a5" style={{ marginLeft: "auto" }} onClick={(e) => e.stopPropagation()} />
         </div>
       </div>
     </div>
