@@ -16,3 +16,9 @@ dist/
 # User files
 *.user
 *.suo
+
+
+
+# .NET
+bin/
+obj/

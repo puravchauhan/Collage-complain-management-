@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-
 import "./Css/Register.css";
-
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -17,20 +15,23 @@ const Register = () => {
 
   const [errors, setErrors] = useState({});
 
+  // Bootstrap Alert
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("");
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
 
-    // Remove error when user starts typing
-    setErrors({
-      ...errors,
+    setErrors((prev) => ({
+      ...prev,
       [name]: "",
-    });
+    }));
   };
 
   // Validation
@@ -79,93 +80,154 @@ const Register = () => {
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password =
-        "Password must be at least 6 characters";
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     // Confirm Password
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword =
-        "Please confirm your password";
+      newErrors.confirmPassword = "Please confirm your password";
     } else if (
       formData.password !== formData.confirmPassword
     ) {
-      newErrors.confirmPassword =
-        "Passwords do not match";
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     return newErrors;
   };
 
   // Submit
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const validationErrors = validateForm();
+    // Clear previous alert
+    setAlertMessage("");
+    setAlertType("");
 
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
+    // Validate
+    const validationErrors = validateForm();
 
-  try {
-    const response = await fetch(
-      "https://localhost:7277/api/Auth/register",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          studentId: formData.studentId,
-          email: formData.email,
-          phone: formData.phone,
-          department: formData.department,
-          semester: formData.semester,
-          password: formData.password,
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert(data.message);
-
-      setFormData({
-        fullName: "",
-        studentId: "",
-        email: "",
-        phone: "",
-        department: "",
-        semester: "",
-        password: "",
-        confirmPassword: "",
-      });
-    } else {
-      alert(data.message || "Registration failed.");
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
 
-  } catch (error) {
-    console.error("Registration error:", error);
+    try {
+      const response = await fetch(
+        "https://localhost:7277/api/Auth/register",
+        {
+          method: "POST",
 
-    alert(
-      "Cannot connect to backend. Make sure ASP.NET is running."
-    );
-  }
-};
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            fullName: formData.fullName,
+            studentId: formData.studentId,
+            email: formData.email,
+            phone: formData.phone,
+            department: formData.department,
+            semester: formData.semester,
+            password: formData.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      // =========================
+      // SUCCESS
+      // =========================
+      if (response.ok) {
+        setAlertMessage(
+          data.message ||
+            "Registration successful. Please check your email to verify your account."
+        );
+
+        setAlertType("success");
+
+        // Clear form
+        setFormData({
+          fullName: "",
+          studentId: "",
+          email: "",
+          phone: "",
+          department: "",
+          semester: "",
+          password: "",
+          confirmPassword: "",
+        });
+
+        setErrors({});
+      }
+
+      // =========================
+      // ERROR FROM BACKEND
+      // =========================
+      else {
+        setAlertMessage(
+          data.message || "Registration failed."
+        );
+
+        setAlertType("danger");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+
+      setAlertMessage(
+        "Cannot connect to backend. Make sure ASP.NET is running."
+      );
+
+      setAlertType("danger");
+    }
+  };
 
   return (
     <div className="register-page">
 
+      {/* =================================
+          BOOTSTRAP ALERT
+          OUTSIDE REGISTER BOX
+          ================================= */}
+      {alertMessage && (
+        <div
+          className={`alert alert-${alertType} alert-dismissible fade show register-alert`}
+          role="alert"
+        >
+          <strong>
+            {alertType === "success"
+              ? "Success!"
+              : "Error!"}
+          </strong>
+
+          <div className="alert-message">
+            {alertMessage}
+          </div>
+
+          <button
+            type="button"
+            className="btn-close btn-close-white shadow-none"
+            aria-label="Close"
+            onClick={(e) => {
+              e.currentTarget.blur();
+              setAlertMessage("");
+              setAlertType("");
+            }}
+          ></button>
+        </div>
+      )}
+
+      {/* =================================
+          MAIN REGISTER BOX
+          ================================= */}
       <div className="register-box">
 
-        {/* Header */}
+        {/* Brand */}
         <div className="brand">
           <span>■</span> CAMPUS CARE / WORK ORDER SYSTEM
         </div>
 
+        {/* Title */}
         <h2 className="text-center fw-bold mb-2">
           CREATE ACCOUNT
         </h2>
@@ -175,15 +237,15 @@ const Register = () => {
           complaints.
         </p>
 
-
-        {/* Form */}
+        {/* =================================
+            REGISTRATION FORM
+            ================================= */}
         <form onSubmit={handleSubmit}>
 
           <div className="row g-3">
 
             {/* Full Name */}
             <div className="col-12 col-md-6">
-
               <label className="form-label">
                 FULL NAME
               </label>
@@ -194,7 +256,7 @@ const Register = () => {
                 className={`form-control ${
                   errors.fullName ? "is-invalid" : ""
                 }`}
-                placeholder="Purav Chauhan"
+                placeholder="Enter Your Name"
                 value={formData.fullName}
                 onChange={handleChange}
               />
@@ -204,13 +266,10 @@ const Register = () => {
                   {errors.fullName}
                 </div>
               )}
-
             </div>
-
 
             {/* Student ID */}
             <div className="col-12 col-md-6">
-
               <label className="form-label">
                 STUDENT ID
               </label>
@@ -221,7 +280,7 @@ const Register = () => {
                 className={`form-control ${
                   errors.studentId ? "is-invalid" : ""
                 }`}
-                placeholder="STU2026001"
+                placeholder="Enter Your Student ID"
                 value={formData.studentId}
                 onChange={handleChange}
               />
@@ -231,13 +290,10 @@ const Register = () => {
                   {errors.studentId}
                 </div>
               )}
-
             </div>
-
 
             {/* Email */}
             <div className="col-12 col-md-6">
-
               <label className="form-label">
                 EMAIL
               </label>
@@ -248,7 +304,7 @@ const Register = () => {
                 className={`form-control ${
                   errors.email ? "is-invalid" : ""
                 }`}
-                placeholder="purav@gmail.com"
+                placeholder="Enter Your Email"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -258,13 +314,10 @@ const Register = () => {
                   {errors.email}
                 </div>
               )}
-
             </div>
-
 
             {/* Phone */}
             <div className="col-12 col-md-6">
-
               <label className="form-label">
                 PHONE
               </label>
@@ -275,7 +328,7 @@ const Register = () => {
                 className={`form-control ${
                   errors.phone ? "is-invalid" : ""
                 }`}
-                placeholder="9876543210"
+                placeholder="Enter Your Phone Number"
                 value={formData.phone}
                 onChange={handleChange}
                 maxLength="10"
@@ -286,13 +339,10 @@ const Register = () => {
                   {errors.phone}
                 </div>
               )}
-
             </div>
-
 
             {/* Department */}
             <div className="col-12 col-md-6">
-
               <label className="form-label">
                 DEPARTMENT
               </label>
@@ -309,23 +359,23 @@ const Register = () => {
                   Select Department
                 </option>
 
-                <option>
+                <option value="Computer Engineering">
                   Computer Engineering
                 </option>
 
-                <option>
+                <option value="Information Technology">
                   Information Technology
                 </option>
 
-                <option>
+                <option value="Electrical Engineering">
                   Electrical Engineering
                 </option>
 
-                <option>
+                <option value="Mechanical Engineering">
                   Mechanical Engineering
                 </option>
 
-                <option>
+                <option value="Civil Engineering">
                   Civil Engineering
                 </option>
               </select>
@@ -335,13 +385,10 @@ const Register = () => {
                   {errors.department}
                 </div>
               )}
-
             </div>
-
 
             {/* Semester */}
             <div className="col-12 col-md-6">
-
               <label className="form-label">
                 SEMESTER
               </label>
@@ -373,13 +420,10 @@ const Register = () => {
                   {errors.semester}
                 </div>
               )}
-
             </div>
-
 
             {/* Password */}
             <div className="col-12 col-md-6">
-
               <label className="form-label">
                 PASSWORD
               </label>
@@ -390,7 +434,7 @@ const Register = () => {
                 className={`form-control ${
                   errors.password ? "is-invalid" : ""
                 }`}
-                placeholder="••••••••"
+                placeholder="Enter Your Password"
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -400,13 +444,10 @@ const Register = () => {
                   {errors.password}
                 </div>
               )}
-
             </div>
-
 
             {/* Confirm Password */}
             <div className="col-12 col-md-6">
-
               <label className="form-label">
                 CONFIRM PASSWORD
               </label>
@@ -415,9 +456,11 @@ const Register = () => {
                 type="password"
                 name="confirmPassword"
                 className={`form-control ${
-                  errors.confirmPassword ? "is-invalid" : ""
+                  errors.confirmPassword
+                    ? "is-invalid"
+                    : ""
                 }`}
-                placeholder="••••••••"
+                placeholder="Confirm Your Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />
@@ -427,30 +470,23 @@ const Register = () => {
                   {errors.confirmPassword}
                 </div>
               )}
-
             </div>
 
-
-            {/* Button */}
+            {/* Register Button */}
             <div className="col-12 text-center mt-4">
-
               <button
                 type="submit"
                 className="btn register-btn"
               >
                 CREATE ACCOUNT →
               </button>
-
             </div>
 
           </div>
-
         </form>
 
-
         {/* Login */}
-        <div className="text-center mt-4 text-secondary ">
-
+        <div className="text-center mt-4 text-secondary">
           Already have an account?
 
           <a
@@ -459,11 +495,9 @@ const Register = () => {
           >
             Login
           </a>
-
         </div>
 
       </div>
-
     </div>
   );
 };
