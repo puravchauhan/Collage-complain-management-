@@ -50,17 +50,14 @@ const Login = () => {
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-    ) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Enter a valid email address";
     }
 
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password =
-        "Password must be at least 6 characters";
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     return newErrors;
@@ -84,160 +81,102 @@ const Login = () => {
 
   return (
     <div className="login-page">
-
       {/* ================= BACKGROUND SWIPER ================= */}
 
       <div className="swiper loginSwiper">
-
         <div className="swiper-wrapper">
-
           <div className="swiper-slide">
-            <img
-              src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg"
-              
-            />
+            <img src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg" />
           </div>
 
           <div className="swiper-slide">
-            <img
-              src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg"
-              
-            />
+            <img src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg" />
           </div>
 
           <div className="swiper-slide">
-            <img
-              src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg"
-             
-            />
+            <img src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg" />
           </div>
-
         </div>
-
       </div>
-
 
       {/* ================= DARK OVERLAY ================= */}
 
       <div className="login-overlay"></div>
 
-
       {/* ================= LOGIN FORM ================= */}
 
       <div className="login-box">
-
         {/* Brand */}
         <div className="brand">
           <span>■</span> CAMPUS CARE
         </div>
 
         {/* Heading */}
-        <h2 className="fw-bold mb-2">
-          WELCOME BACK
-        </h2>
+        <h2 className="fw-bold mb-2">WELCOME BACK</h2>
 
         <p className="text-secondary mb-4">
           Login to report and track your campus complaints.
         </p>
 
-
         {/* Form */}
         <form onSubmit={handleSubmit}>
-
           {/* Email */}
           <div className="mb-3">
-
-            <label className="form-label">
-              COLLEGE EMAIL
-            </label>
+            <label className="form-label">COLLEGE EMAIL</label>
 
             <input
               type="email"
               name="email"
-              className={`form-control ${
-                errors.email ? "is-invalid" : ""
-              }`}
+              className={`form-control ${errors.email ? "is-invalid" : ""}`}
               placeholder="purav@gmail.com"
               value={formData.email}
               onChange={handleChange}
             />
 
             {errors.email && (
-              <div className="invalid-feedback">
-                {errors.email}
-              </div>
+              <div className="invalid-feedback">{errors.email}</div>
             )}
-
           </div>
-
 
           {/* Password */}
           <div className="mb-2">
-
-            <label className="form-label">
-              PASSWORD
-            </label>
+            <label className="form-label">PASSWORD</label>
 
             <input
               type="password"
               name="password"
-              className={`form-control ${
-                errors.password ? "is-invalid" : ""
-              }`}
+              className={`form-control ${errors.password ? "is-invalid" : ""}`}
               placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
             />
 
             {errors.password && (
-              <div className="invalid-feedback">
-                {errors.password}
-              </div>
+              <div className="invalid-feedback">{errors.password}</div>
             )}
-
           </div>
-
 
           {/* Forgot Password */}
           <div className="text-end mb-4">
-
-            <a
-              href="/forgot-password"
-              className="forgot-link"
-            >
+            <a href="/forgot-password" className="forgot-link">
               Forgot Password?
             </a>
-
           </div>
 
-
           {/* Login */}
-          <button
-            type="submit"
-            className="btn login-btn w-100"
-          >
+          <button type="submit" className="btn login-btn w-100">
             LOGIN →
           </button>
-
         </form>
-
 
         {/* Register */}
         <div className="mt-4 text-secondary">
-
           Don't have an account?
-
-          <a
-            href="/register"
-            className="register-link ms-1"
-          >
+          <a href="/register" className="register-link ms-1">
             Create Account
           </a>
-
         </div>
-
       </div>
-
     </div>
   );
 };

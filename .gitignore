@@ -1,24 +1,15 @@
 # Visual Studio
 .vs/
-**/.vs/
+Backend/.vs/
 
-# Build folders
+# Build output
 bin/
 obj/
+Backend/bin/
+Backend/obj/
 
-# React
+# Node
 node_modules/
-dist/
 
-# Logs
-*.log
-
-# User files
-*.user
-*.suo
-
-
-# .NET
-bin/
-obj/
-
+# Environment
+.env

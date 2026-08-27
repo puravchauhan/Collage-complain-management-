@@ -8,7 +8,6 @@
   padding: 50px;
 }
 
-
 /* ================= BACKGROUND ================= */
 
 .loginSwiper {
@@ -30,7 +29,6 @@
   object-fit: cover;
 }
 
-
 /* ================= OVERLAY ================= */
 
 .login-overlay {
@@ -39,7 +37,6 @@
   background: rgba(17, 35, 61, 0.65);
   z-index: 2;
 }
-
 
 /* ================= LOGIN BOX ================= */
 
@@ -59,7 +56,6 @@
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
 }
 
-
 /* ================= BRAND ================= */
 
 .brand {
@@ -75,14 +71,13 @@
   margin-right: 8px;
 }
 
-
 /* ================= FORM ================= */
 
 .login-box .form-label {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #16232F;
+  color: #16232f;
 }
 
 .login-box .form-control {
@@ -95,28 +90,25 @@
   box-shadow: 0 0 0 0.15rem rgba(217, 164, 65, 0.15);
 }
 
-
 /* ================= BUTTON ================= */
 
 .login-btn {
-   background-color :transparent !important;
-    color:black !important;
-    border :1.5px solid rgba(2, 2, 2, 0.596);
-   font-weight:700 !important;
-    
-    
-    border-radius: 0 !important;
+  background-color: transparent !important;
+  color: black !important;
+  border: 1.5px solid rgba(2, 2, 2, 0.596);
+  font-weight: 700 !important;
 
-    padding: 12px 35px;
+  border-radius: 0 !important;
+
+  padding: 12px 35px;
 }
 
 .login-btn:hover {
-     border :1.5px solid var(--ink);
-    background-color :var(--ink) !important;
-    color:white !important;
-    border-radius: 0 !important;
+  border: 1.5px solid var(--ink);
+  background-color: var(--ink) !important;
+  color: white !important;
+  border-radius: 0 !important;
 }
-
 
 /* ================= LINKS ================= */
 
@@ -132,11 +124,9 @@
   color: #d9a441;
 }
 
-
 /* ================= MOBILE ================= */
 
 @media (max-width: 576px) {
-
   .login-page {
     padding: 20px;
     align-items: flex-end;
@@ -146,5 +136,4 @@
     padding: 25px;
     width: 100%;
   }
-
 }
