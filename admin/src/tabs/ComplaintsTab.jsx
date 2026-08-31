@@ -3,7 +3,7 @@ import { Filter } from "lucide-react";
 import { STATUS_ORDER } from "../data/mockData";
 import ComplaintDocket from "../components/ComplaintDocket";
 
-export default function ComplaintsTab({ complaints, onAssign }) {
+export default function ComplaintsTab({ complaints, onAssign, settings }) {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [assignOpenId, setAssignOpenId] = useState(null);
@@ -49,7 +49,7 @@ export default function ComplaintsTab({ complaints, onAssign }) {
         </div>
       </div>
 
-      <div className="docket-list">
+      <div className={`docket-list${settings?.compactDocketView ? " compact" : ""}`}>
         {filtered.length === 0 && <div className="empty-state">No complaints match this filter.</div>}
         {filtered.map((c) => (
           <div key={c.id} onClick={(e) => e.stopPropagation()}>
@@ -58,6 +58,7 @@ export default function ComplaintsTab({ complaints, onAssign }) {
               assignOpenId={assignOpenId}
               onAssignClick={(id) => setAssignOpenId(assignOpenId === id ? null : id)}
               onAssign={(id, techId) => { onAssign(id, techId); setAssignOpenId(null); }}
+              autoAssignSuggestions={settings?.autoAssignSuggestions}
             />
           </div>
         ))}

@@ -1,18 +1,73 @@
-# React + Vite
+# College Complaint & Maintenance Portal — Admin Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A responsive React admin dashboard for the College Complaint & Maintenance
+Portal abstract (ASP.NET + SQL Server backend concept). Same design and
+colors as before — now with simpler, class-based CSS and full mobile support.
 
-Currently, two official plugins are available:
+## What changed in this version
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Simpler code**: components now use plain CSS classes (`src/index.css`)
+  instead of large inline `style={{...}}` objects. Same look, much less JSX.
+- **Responsive**: 
+  - Sidebar becomes a slide-in drawer (with a hamburger button + backdrop) below 860px.
+  - Stat card grid: 4 → 2 → 1 columns as the screen narrows.
+  - Overview charts stack vertically below 900px.
+  - Technician cards: 2 → 1 columns below 700px.
+  - The complaint "docket" ticket stacks vertically (stub on top, body below) below 640px instead of overflowing.
 
-## React Compiler
+## Color scheme
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+| Area              | Color     |
+|-------------------|-----------|
+| Navbar / sidebar   | `#182235` |
+| Buttons / accents  | `#d89d2a` |
+| Body background    | `#f4efe3` |
 
-Note: This will impact Vite dev & build performances.
+All colors are defined once, as CSS variables, at the top of `src/index.css`.
 
-## Expanding the Oxlint configuration
+## Folder structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```
+college-complaint-portal/
+├── index.html
+├── package.json
+├── vite.config.js
+└── src/
+    ├── main.jsx                # React entry point
+    ├── App.jsx                 # Root component — wires sidebar + topbar + tabs
+    ├── index.css                # All design tokens + component styles + media queries
+    ├── theme/
+    │   └── tokens.js           # JS color/font constants (used by recharts + per-row data colors)
+    ├── data/
+    │   └── mockData.js         # Complaints, technicians, category/status/priority metadata
+    ├── components/
+    │   ├── Sidebar.jsx         # Navy left nav (slides in as a drawer on mobile)
+    │   ├── Topbar.jsx          # Navy top bar with search + hamburger (mobile)
+    │   ├── StatCard.jsx        # Overview summary metric card
+    │   ├── IconBadge.jsx       # Rounded icon chip
+    │   ├── Pill.jsx            # Status/priority badge
+    │   └── ComplaintDocket.jsx # Signature "work-order ticket" complaint card
+    └── tabs/
+        ├── OverviewTab.jsx     # Stat cards + charts + recent activity
+        ├── ComplaintsTab.jsx   # Filterable/searchable complaint list + assign flow
+        ├── TechniciansTab.jsx  # Technician workload cards
+        └── PlaceholderTab.jsx  # Reused for Students / Reports / Settings
+```
+
+## Run it
+
+```bash
+npm install
+npm run dev
+```
+
+Then open the local URL Vite prints (usually `http://localhost:5173`), and
+try resizing the window (or open dev tools' device toolbar) to see the
+responsive behavior.
+
+## Connecting to your ASP.NET / SQL Server backend
+
+Replace the mock data in `src/data/mockData.js` with `fetch()` calls to your
+ASP.NET Web API endpoints (e.g. `GET /api/complaints`, `POST /api/complaints/{id}/assign`),
+and move the `complaints` state in `App.jsx` into a data-fetching hook
+(e.g. `useEffect` + `useState`, or React Query) once your API is ready.
