@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import "./Css/Login.css";
 
@@ -8,49 +9,62 @@ const Login = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-  // Swiper
+  // ==============================
+  // SWIPER
+  // ==============================
   useEffect(() => {
-    const swiper = new window.Swiper(".loginSwiper", {
-      slidesPerView: 1,
-      loop: true,
+    if (window.Swiper) {
+      const swiper = new window.Swiper(".loginSwiper", {
+        slidesPerView: 1,
+        loop: true,
+        autoplay: {
+          delay: 4000,
+          disableOnInteraction: false,
+        },
+        effect: "fade",
+        speed: 1000,
+      });
 
-      autoplay: {
-        delay: 4000,
-        disableOnInteraction: false,
-      },
-
-      effect: "fade",
-      speed: 1000,
-    });
-
-    return () => {
-      swiper.destroy();
-    };
+      return () => {
+        swiper.destroy();
+      };
+    }
   }, []);
 
-  // Handle input
+  // ==============================
+  // HANDLE INPUT
+  // ==============================
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
+    setFormData((previous) => ({
+      ...previous,
       [name]: value,
-    });
+    }));
 
-    setErrors({
-      ...errors,
+    setErrors((previous) => ({
+      ...previous,
       [name]: "",
-    });
+      login: "",
+    }));
+
+    setSuccessMessage("");
   };
 
-  // Validation
+  // ==============================
+  // VALIDATION
+  // ==============================
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
+    ) {
       newErrors.email = "Enter a valid email address";
     }
 
@@ -63,9 +77,14 @@ const Login = () => {
     return newErrors;
   };
 
-  // Submit
-  const handleSubmit = (e) => {
+  // ==============================
+  // LOGIN
+  // ==============================
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setErrors({});
+    setSuccessMessage("");
 
     const validationErrors = validateForm();
 
@@ -74,28 +93,105 @@ const Login = () => {
       return;
     }
 
-    console.log("Login Data:", formData);
+    try {
+      setLoading(true);
 
-    alert("Login successful!");
+      console.log("Sending login request...");
+
+      const response = await fetch(
+        "https://localhost:7277/api/Login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email.trim(),
+            password: formData.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("LOGIN STATUS:", response.status);
+      console.log("LOGIN RESPONSE:", data);
+
+      // ==============================
+      // LOGIN FAILED
+      // ==============================
+      if (!response.ok) {
+        setErrors({
+          login: data.message || "Invalid email or password.",
+        });
+
+        return;
+      }
+
+      // ==============================
+      // LOGIN SUCCESS
+      // ==============================
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
+      );
+
+      // Save user ID separately
+      localStorage.setItem(
+        "userId",
+        data.user.id.toString()
+      );
+
+      setSuccessMessage("Login successful! Redirecting...");
+
+      // Wait 1 second so user can see success message
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+
+    } catch (error) {
+      console.error("LOGIN ERROR:", error);
+
+      setErrors({
+        login:
+          "Unable to connect to server. Please make sure the backend is running.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="login-page">
+
       {/* ================= BACKGROUND SWIPER ================= */}
 
       <div className="swiper loginSwiper">
+
         <div className="swiper-wrapper">
+
           <div className="swiper-slide">
-            <img src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg" />
+            <img
+              src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg"
+              alt="University"
+            />
           </div>
 
           <div className="swiper-slide">
-            <img src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg" />
+            <img
+              src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg"
+              alt="University"
+            />
           </div>
 
           <div className="swiper-slide">
-            <img src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg" />
+            <img
+              src="https://img.jagranjosh.com/images/2023/January/212023/Universities.jpg"
+              alt="University"
+            />
           </div>
+
         </div>
       </div>
 
@@ -106,77 +202,146 @@ const Login = () => {
       {/* ================= LOGIN FORM ================= */}
 
       <div className="login-box">
+
         {/* Brand */}
+
         <div className="brand">
           <span>■</span> CAMPUS CARE
         </div>
 
         {/* Heading */}
-        <h2 className="fw-bold mb-2">WELCOME BACK</h2>
+
+        <h2 className="fw-bold mb-2">
+          WELCOME BACK
+        </h2>
 
         <p className="text-secondary mb-4">
           Login to report and track your campus complaints.
         </p>
 
-        {/* Form */}
+        {/* ================= LOGIN ERROR ================= */}
+
+        {errors.login && (
+          <div className="register-alert login-error-alert">
+
+            <strong>Login Failed</strong>
+
+            <div className="alert-message">
+              {errors.login}
+            </div>
+
+          </div>
+        )}
+
+        {/* ================= LOGIN SUCCESS ================= */}
+
+        {successMessage && (
+          <div className="register-alert login-success-alert">
+
+            <strong>Login Successful</strong>
+
+            <div className="alert-message">
+              {successMessage}
+            </div>
+
+          </div>
+        )}
+
+        {/* ================= FORM ================= */}
+
         <form onSubmit={handleSubmit}>
-          {/* Email */}
+
+          {/* EMAIL */}
+
           <div className="mb-3">
-            <label className="form-label">COLLEGE EMAIL</label>
+
+            <label className="form-label">
+              COLLEGE EMAIL
+            </label>
 
             <input
               type="email"
               name="email"
-              className={`form-control ${errors.email ? "is-invalid" : ""}`}
-              placeholder="purav@gmail.com"
+              className={`form-control ${
+                errors.email ? "is-invalid" : ""
+              }`}
+              placeholder="Enter Your Email"
               value={formData.email}
               onChange={handleChange}
             />
 
             {errors.email && (
-              <div className="invalid-feedback">{errors.email}</div>
+              <div className="invalid-feedback">
+                {errors.email}
+              </div>
             )}
+
           </div>
 
-          {/* Password */}
+          {/* PASSWORD */}
+
           <div className="mb-2">
-            <label className="form-label">PASSWORD</label>
+
+            <label className="form-label">
+              PASSWORD
+            </label>
 
             <input
               type="password"
               name="password"
-              className={`form-control ${errors.password ? "is-invalid" : ""}`}
-              placeholder="••••••••"
+              className={`form-control ${
+                errors.password ? "is-invalid" : ""
+              }`}
+              placeholder="Enter Your Password"
               value={formData.password}
               onChange={handleChange}
             />
 
             {errors.password && (
-              <div className="invalid-feedback">{errors.password}</div>
+              <div className="invalid-feedback">
+                {errors.password}
+              </div>
             )}
+
           </div>
 
-          {/* Forgot Password */}
-          <div className="text-end mb-4">
-            <a href="/forgot-password" className="forgot-link">
-              Forgot Password?
-            </a>
-          </div>
+          {/* FORGOT PASSWORD */}
 
-          {/* Login */}
-          <button type="submit" className="btn login-btn w-100">
-            LOGIN →
+          
+
+          {/* LOGIN BUTTON */}
+
+          <button
+            type="submit"
+            className="btn login-btn w-100"
+            disabled={loading}
+          >
+
+            {loading
+              ? "LOGGING IN..."
+              : "LOGIN →"}
+
           </button>
+
         </form>
 
-        {/* Register */}
+        {/* REGISTER */}
+
         <div className="mt-4 text-secondary">
+
           Don't have an account?
-          <a href="/register" className="register-link ms-1">
+
+          <a
+            href="/register"
+            className="register-link ms-1"
+          >
             Create Account
           </a>
+
         </div>
+
       </div>
+
     </div>
   );
 };

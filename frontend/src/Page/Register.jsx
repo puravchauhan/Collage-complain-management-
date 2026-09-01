@@ -128,7 +128,7 @@ const Register = () => {
             phone: formData.phone,
             department: formData.department,
             semester: formData.semester,
-            password: formData.password,
+            passwordHash: formData.password,
           }),
         }
       );

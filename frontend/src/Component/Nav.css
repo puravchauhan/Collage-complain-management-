@@ -116,3 +116,137 @@
     }
 
 }
+/* ==========================================
+   PROFILE BUTTON
+========================================== */
+
+.profile-button {
+    width: 45px;
+    height: 45px;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    background: #ffffff;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 22px;
+}
+
+
+
+
+
+
+.profile-icon {
+    font-size: 22px;
+}
+
+
+/* ==========================================
+   PROFILE OFFCANVAS
+========================================== */
+
+.profile-offcanvas {
+    width: 550px !important;
+    max-width: 90%;
+}
+.btn-close{
+    color: white !important;
+}
+
+.offcanvas-header{
+    background-color: #16232F !important;
+}
+/* ==========================================
+   PROFILE HEADER
+========================================== */
+
+.profile-header {
+    text-align: center;
+    padding: 10px 0 25px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.big-profile-icon {
+    width: 85px;
+    height: 85px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    background: #11233d;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 40px;
+}
+
+.profile-header h4 {
+    margin-bottom: 5px;
+
+    color: #11233d;
+
+    font-weight: 500;
+}
+
+.profile-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* ==========================================
+   PROFILE DETAILS
+========================================== */
+
+.profile-details {
+    margin-top: 20px;
+}
+
+.profile-detail {
+    display: flex;
+    flex-direction: column;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+.detail-label {
+    font-size: 11px;
+    font-weight: 520;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.detail-value {
+    font-size: 15px;
+    font-weight: 520;
+    color: #11233d;
+    word-break: break-word;
+}
+.bi-person{
+    color: black;
+}
+
+
+.p1{
+    color: white !important;
+}
+.btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+}
+
+.btn-close:hover {
+    opacity: 0.7;
+}
+.btn-close:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
