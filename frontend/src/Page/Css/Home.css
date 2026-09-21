@@ -351,3 +351,64 @@ body {
     transparent 100%
   );
 }
+
+
+/* =========================================
+   CONTACT SUCCESS / ERROR POPUP
+   Same style as Register Alert
+   ========================================= */
+
+.contact-alert {
+  position: fixed;
+  top: 40px;
+  right: 20px;
+
+  background-color: #16232F !important;
+  color: white !important;
+
+  width: 350px;
+  max-width: calc(100vw - 40px);
+
+  z-index: 99999;
+
+  margin: 0;
+  padding: 12px 45px 12px 15px;
+
+  border: none !important;
+  border-radius: 6px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.contact-alert strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.contact-alert .alert-message {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Close button */
+
+.contact-alert .btn-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 576px) {
+  .contact-alert {
+    top: 15px;
+    right: 15px;
+    left: 15px;
+
+    width: auto;
+    max-width: none;
+  }
+}
