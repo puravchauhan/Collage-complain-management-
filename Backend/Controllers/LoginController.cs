@@ -149,6 +149,18 @@ namespace backend.Controllers
 
                 Console.WriteLine("LOGIN SUCCESS");
 
+                // Save login history
+                var loginHistory = new LoginHistory
+                {
+                    Email = user.Email,
+                    LoginTime = DateTime.Now
+                };
+
+                _context.LoginHistories.Add(loginHistory);
+
+                await _context.SaveChangesAsync();
+
+                Console.WriteLine("LOGIN HISTORY SAVED");
 
                 return Ok(new
                 {
