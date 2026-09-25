@@ -1,15 +1,98 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Css/Home.css";
 import Footer from "../Component/Footer";
 
-<link
-  href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-  rel="stylesheet"
-/>;
+
 
 const Home = () => {
+
+
+  // Contact form data
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Handle input changes
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // Submit contact form
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  setSuccess("");
+  setError("");
+
+  if (
+    !formData.name.trim() ||
+    !formData.email.trim() ||
+    !formData.subject.trim() ||
+    !formData.message.trim()
+  ) {
+    setError("Please fill all fields.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const response = await fetch(
+      "https://localhost:7277/api/Contact",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Message failed to send.");
+    }
+
+    setSuccess(
+      data.message || "Your message has been sent successfully."
+    );
+
+    setFormData({
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+    });
+
+  } catch (error) {
+    console.error(error);
+    setError("Unable to send message. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+
+
+
+
   return (
     <>
       <section className="hero py-5">
@@ -387,135 +470,230 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ================= CONTACT ================= */}
-      <section className="py-5 bg-light mt-5">
-        <div className="container py-4 ">
-          <div className="row g-5">
-            {/* Contact Information */}
-            <div className="col-lg-5 d-flex justify-content-center flex-column ">
-              <small className="hero-tag fw-bold ">CONTACT US</small>
+   
+{/* ================= CONTACT ================= */}
+<section className="py-5 bg-light mt-5">
+  <div className="container py-4">
+    <div className="row g-5">
 
-              <h2 className="display-6 fw-bold mt-3 mb-4 text-dark section-title">
-                Need help?
-                <br />
-                We're here for you.
-              </h2>
+      {/* Contact Information */}
+      <div className="col-lg-5 d-flex justify-content-center flex-column">
 
-              <p className="text-secondary mt-1 ">
-                For maintenance issues, technical support, or general
-                assistance, contact the appropriate department.
-              </p>
+        <small className="hero-tag fw-bold">
+          CONTACT US
+        </small>
 
-              {/* Maintenance */}
-              <div className="d-flex gap-3 mt-4">
-                <div className="contact-icon bg-dark text-warning rounded">
-                  <i className="bi bi-tools icon-box1"></i>
-                </div>
+        <h2 className="display-6 fw-bold mt-3 mb-4 text-dark section-title">
+          Need help?
+          <br />
+          We're here for you.
+        </h2>
 
-                <div>
-                  <h6 className="fw-bold mb-1 font-style">
-                    Maintenance Office
-                  </h6>
+        <p className="text-secondary mt-1">
+          For maintenance issues, technical support, or general
+          assistance, contact the appropriate department.
+        </p>
 
-                  <p className="text-secondary small mb-0 font-style">
-                    For campus maintenance and repair issues.
-                  </p>
-                </div>
-              </div>
+        <div className="d-flex gap-3 mt-4">
+          <div className="contact-icon bg-dark text-warning rounded">
+            <i className="bi bi-tools icon-box1"></i>
+          </div>
 
-              {/* IT Support */}
-              <div className="d-flex gap-3 mt-5">
-                <div className="contact-icon bg-dark text-warning rounded">
-                  <i className="bi bi-pc-display icon-box1"></i>
-                </div>
+          <div>
+            <h6 className="fw-bold mb-1">
+              Maintenance Office
+            </h6>
 
-                <div>
-                  <h6 className="fw-bold mb-1  font-style">IT Support</h6>
-
-                  <p className="text-secondary small mb-0 font-style">
-                    For Wi-Fi, computer and technical problems.
-                  </p>
-                </div>
-              </div>
-
-              {/* Administration */}
-              <div className="d-flex gap-3 mt-5 ">
-                <div className="contact-icon bg-dark text-warning rounded">
-                  <i className="bi bi-building icon-box1"></i>
-                </div>
-
-                <div>
-                  <h6 className="fw-bold mb-1 font-style">
-                    College Administration
-                  </h6>
-
-                  <p className="text-secondary small mb-0 font-style">
-                    For general college-related assistance.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Form */}
-            <div className="col-lg-7 ">
-              <div className="bg-white border rounded-3 shadow-sm p-3 p-md-5">
-                <h4 className="fw-bold font-style"> Send us a message </h4>
-
-                <p className="text-secondary font-style">
-                  Have a question? Send a message to our team.
-                </p>
-
-                <div className="row g-3 mt-2">
-                  <div className="col-md-6">
-                    <label className="form-label fw-semibold">Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Your name"
-                    />
-                  </div>
-
-                  <div className="col-md-6">
-                    <label className="form-label fw-semibold"> Email </label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      placeholder="your@email.com"
-                    />
-                  </div>
-
-                  <div className="col-12">
-                    <label className="form-label fw-semibold"> Subject </label>
-
-                    <input
-                      type="text"
-                      className="form-control "
-                      placeholder="How can we help?"
-                    />
-                  </div>
-
-                  <div className="col-12">
-                    <label className="form-label fw-semibold"> Message </label>
-                    <textarea
-                      className="form-control"
-                      rows="5"
-                      placeholder="Write your message..."
-                    ></textarea>
-                  </div>
-
-                  <div className="col-12">
-                    <button className="btn btn-dark px-4 py-2 font-style">
-                      {" "}
-                      Send Message
-                      <i className="bi bi-arrow-right ms-2"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <p className="text-secondary small mb-0">
+              For campus maintenance and repair issues.
+            </p>
           </div>
         </div>
-      </section>
+
+        <div className="d-flex gap-3 mt-5">
+          <div className="contact-icon bg-dark text-warning rounded">
+            <i className="bi bi-pc-display icon-box1"></i>
+          </div>
+
+          <div>
+            <h6 className="fw-bold mb-1">
+              IT Support
+            </h6>
+
+            <p className="text-secondary small mb-0">
+              For Wi-Fi, computer and technical problems.
+            </p>
+          </div>
+        </div>
+
+        <div className="d-flex gap-3 mt-5">
+          <div className="contact-icon bg-dark text-warning rounded">
+            <i className="bi bi-building icon-box1"></i>
+          </div>
+
+          <div>
+            <h6 className="fw-bold mb-1">
+              College Administration
+            </h6>
+
+            <p className="text-secondary small mb-0">
+              For general college-related assistance.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+
+      {/* Contact Form */}
+      <div className="col-lg-7">
+
+        <div className="bg-white border rounded-3 shadow-sm p-3 p-md-5">
+
+          <h4 className="fw-bold">
+            Send us a message
+          </h4>
+
+          <p className="text-secondary">
+            Have a question? Send a message to our team.
+          </p>
+
+
+          {/* SUCCESS */}
+{error && (
+  <div className="contact-alert">
+    <strong>Error!</strong>
+
+    <div className="alert-message">
+      {error}
+    </div>
+
+    <button
+      type="button"
+      className="btn-close btn-close-white shadow-none"
+      aria-label="Close"
+      onClick={() => setError("")}
+    ></button>
+  </div>
+)}
+
+{success && (
+  <div className="contact-alert">
+    <strong>Success!</strong>
+
+    <div className="alert-message">
+      {success}
+    </div>
+
+    <button
+      type="button"
+      className="btn-close btn-close-white shadow-none"
+      aria-label="Close"
+      onClick={() => setSuccess("")}
+    ></button>
+  </div>
+)}
+
+
+         <form onSubmit={handleSubmit} noValidate>
+
+  <div className="row g-3 mt-2">
+
+    {/* NAME */}
+    <div className="col-md-6">
+      <label className="form-label fw-semibold">
+        Name
+      </label>
+
+      <input
+        type="text"
+        name="name"
+        className="form-control"
+        placeholder="Your name"
+        value={formData.name}
+        onChange={handleChange}
+      />
+    </div>
+
+
+    {/* EMAIL */}
+    <div className="col-md-6">
+      <label className="form-label fw-semibold">
+        Email
+      </label>
+
+      <input
+        type="email"
+        name="email"
+        className="form-control"
+        placeholder="your@email.com"
+        value={formData.email}
+        onChange={handleChange}
+      />
+    </div>
+
+
+    {/* SUBJECT */}
+    <div className="col-12">
+      <label className="form-label fw-semibold">
+        Subject
+      </label>
+
+      <input
+        type="text"
+        name="subject"
+        className="form-control"
+        placeholder="How can we help?"
+        value={formData.subject}
+        onChange={handleChange}
+      />
+    </div>
+
+
+    {/* MESSAGE */}
+    <div className="col-12">
+      <label className="form-label fw-semibold">
+        Message
+      </label>
+
+      <textarea
+        name="message"
+        className="form-control"
+        rows="5"
+        placeholder="Write your message..."
+        value={formData.message}
+        onChange={handleChange}
+      ></textarea>
+    </div>
+
+
+    {/* BUTTON */}
+    <div className="col-12">
+      <button
+        type="submit"
+        className="btn btn-dark px-4 py-2 font-style"
+        disabled={loading}
+      >
+        {loading ? "Sending..." : "Send Message"}
+
+        <i className="bi bi-arrow-right ms-2"></i>
+      </button>
+    </div>
+
+  </div>
+
+</form>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
   
       <Footer />
     </>
