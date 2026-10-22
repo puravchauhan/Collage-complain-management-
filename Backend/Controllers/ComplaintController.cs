@@ -17,10 +17,11 @@ namespace backend.Controllers
         }
 
         // POST: api/Complaint
+        // Submit a new complaint
         [HttpPost]
         public async Task<IActionResult> CreateComplaint(
-     [FromForm] Complaint complaint,
-     IFormFile? Image)
+            [FromForm] Complaint complaint,
+            IFormFile? Image)
         {
             try
             {
@@ -48,10 +49,9 @@ namespace backend.Controllers
                     });
                 }
 
-                // Image upload
+                // Upload image if provided
                 if (Image != null && Image.Length > 0)
                 {
-                    // Create uploads folder
                     var uploadsFolder = Path.Combine(
                         Directory.GetCurrentDirectory(),
                         "wwwroot",
@@ -63,17 +63,14 @@ namespace backend.Controllers
                         Directory.CreateDirectory(uploadsFolder);
                     }
 
-                    // Create unique file name
                     var fileName = Guid.NewGuid().ToString()
                         + Path.GetExtension(Image.FileName);
 
-                    // Complete file path
                     var filePath = Path.Combine(
                         uploadsFolder,
                         fileName
                     );
 
-                    // Save image
                     using (var stream = new FileStream(
                         filePath,
                         FileMode.Create))
@@ -81,15 +78,14 @@ namespace backend.Controllers
                         await Image.CopyToAsync(stream);
                     }
 
-                    // Save image path in database
                     complaint.ImagePath = "/uploads/" + fileName;
                 }
 
-                // Default values
+                // Set default values
                 complaint.Status = "Pending";
                 complaint.CreatedAt = DateTime.Now;
 
-                // Save complaint
+                // Save complaint to database
                 _context.Complaints.Add(complaint);
 
                 await _context.SaveChangesAsync();
@@ -115,13 +111,15 @@ namespace backend.Controllers
             }
         }
 
-        // GET: api/Complaint
+        // GET: api/Complaint/student/{userId}
+        // Get complaints belonging to a specific student
         [HttpGet("student/{userId}")]
         public async Task<IActionResult> GetStudentComplaints(int userId)
         {
             try
             {
                 var complaints = await _context.Complaints
+                    .AsNoTracking()
                     .Where(c => c.UserId == userId)
                     .OrderByDescending(c => c.CreatedAt)
                     .ToListAsync();
@@ -130,9 +128,52 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
+
                 return StatusCode(500, new
                 {
-                    message = "Error loading complaints.",
+                    success = false,
+                    message = "Error loading student complaints.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Complaint/all
+        // Get all complaints for the admin dashboard
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllComplaints()
+        {
+            try
+            {
+                var complaints = await _context.Complaints
+                    .AsNoTracking()
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Select(c => new
+                    {
+                        id = c.Id,
+                        category = c.Category,
+                        title = c.Problem,
+                        priority = c.Priority,
+                        location = c.Location,
+                        description = c.Description,
+                        status = c.Status,
+                        date = c.CreatedAt,
+                        userId = c.UserId,
+                        imagePath = c.ImagePath
+                    })
+                    .ToListAsync();
+
+                return Ok(complaints);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error loading all complaints.",
                     error = ex.Message
                 });
             }

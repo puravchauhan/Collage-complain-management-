@@ -4,30 +4,32 @@ import AdminLogin from "./pages/AdminLogin.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 
-/**
- * Route map for the admin frontend.
- *
- *   /                  -> /admin/login
- *   /admin             -> /admin/login
- *   /admin/login       -> AdminLogin (bounces to dashboard if already signed in)
- *   /admin/dashboard   -> AdminDashboard, behind ProtectedRoute
- *   anything else      -> /admin/login
- */
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/admin" replace />} />
-      <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-      <Route path="/admin/login" element={<AdminLogin />} />
+      {/* Login page opens at http://localhost:5173/ */}
+      <Route path="/" element={<AdminLogin />} />
+
+      {/* Dashboard opens after successful login */}
       <Route
-        path="/admin/dashboard"
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <AdminDashboard />
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/admin/login" replace />} />
+
+      {/* Redirect old URLs */}
+      <Route path="/admin" element={<Navigate to="/" replace />} />
+      <Route path="/admin/login" element={<Navigate to="/" replace />} />
+      <Route
+        path="/admin/dashboard"
+        element={<Navigate to="/dashboard" replace />}
+      />
+
+      {/* Unknown routes return to the login page */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

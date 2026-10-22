@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFonts } from "../theme/tokens";
 import { INITIAL_COMPLAINTS } from "../data/mockData";
@@ -34,11 +34,13 @@ export const SEARCHABLE_TABS = [
 export default function AdminDashboard() {
   useFonts();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+ const { user, updateUser, logout } = useAuth();
 
   const [tab, setTab] = useState("overview");
   const [topSearch, setTopSearch] = useState("");
-  const [complaints, setComplaints] = useState(INITIAL_COMPLAINTS);
+const [complaints, setComplaints] = useState([]);
+const [loadingComplaints, setLoadingComplaints] = useState(true);
+const [complaintError, setComplaintError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [prevTab, setPrevTab] = useState("overview");
   const [admin, setAdmin] = useState(DEFAULT_ADMIN);
@@ -50,6 +52,58 @@ export default function AdminDashboard() {
     setTopSearch("");
     setMenuOpen(false);
   };
+
+
+  const loadComplaints = async () => {
+  try {
+    setLoadingComplaints(true);
+    setComplaintError("");
+
+    const response = await fetch(
+      "https://localhost:7277/api/Complaint/all"
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Unable to load complaints. HTTP ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error("The API did not return a complaints list.");
+    }
+
+    const formattedComplaints = data.map((c) => ({
+      id: c.id,
+      category: c.category || "Other Issues",
+      title: c.title || "Untitled complaint",
+      priority: c.priority || "Medium",
+      location: c.location || "Not specified",
+      description: c.description || "",
+      status: c.status || "Pending",
+      date: c.date,
+      student: `User ${c.userId}`,
+      imagePath: c.imagePath || null,
+    }));
+
+    setComplaints(formattedComplaints);
+  } catch (error) {
+    console.error("Loading complaints failed:", error);
+    setComplaintError(
+      error.message || "Failed to load complaints."
+    );
+  } finally {
+    setLoadingComplaints(false);
+  }
+};
+
+useEffect(() => {
+  loadComplaints();
+}, []);
+
+
 
   const goToProfile = () => navigateTo("profile");
 
@@ -65,10 +119,10 @@ export default function AdminDashboard() {
   const updateAdmin = (patch) => setAdmin((prev) => ({ ...prev, ...patch }));
   const updateSettings = (patch) => setSettings((prev) => ({ ...prev, ...patch }));
 
-  const handleLogout = () => {
-    logout();
-    navigate("/admin/login", { replace: true });
-  };
+const handleLogout = () => {
+  logout();
+  navigate("/", { replace: true });
+};
 
   const meta = TAB_META[tab];
 
@@ -98,7 +152,31 @@ export default function AdminDashboard() {
           onNavigate={navigateTo}
         />
         <div className="app-content">
-          {tab === "overview" && <OverviewTab complaints={complaints} admin={admin} />}
+      {tab === "overview" && (
+  <div>
+    {loadingComplaints && (
+      <p>Loading complaints from database...</p>
+    )}
+
+    {complaintError && (
+      <div className="error-message">
+        <p>{complaintError}</p>
+        <button type="button" onClick={loadComplaints}>
+          Try Again
+        </button>
+      </div>
+    )}
+
+    {!loadingComplaints && !complaintError && (
+      <OverviewTab
+        complaints={complaints}
+        admin={admin}
+      />
+    )}
+
+    
+  </div>
+)}
           {tab === "complaints" && (
             <ComplaintsTab complaints={complaints} onAssign={handleAssign} settings={settings} />
           )}
@@ -114,13 +192,13 @@ export default function AdminDashboard() {
           )}
           {tab === "profile" && (
             <ProfileTab
-              complaints={complaints}
-              onBack={() => setTab(prevTab)}
-              admin={admin}
-              onUpdateAdmin={updateAdmin}
-              settings={settings}
-              onUpdateSettings={updateSettings}
-              onLogout={handleLogout}
+              admin={user}
+  onUpdateAdmin={updateUser}
+  onLogout={logout}
+  complaints={complaints}
+  settings={settings}
+  onUpdateSettings={setSettings}
+  onBack={() => setActiveTab("overview")}
             />
           )}
         </div>

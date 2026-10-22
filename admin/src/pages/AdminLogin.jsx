@@ -26,10 +26,9 @@ export default function AdminLogin() {
   const [submitting, setSubmitting] = useState(false);
 
   // Already logged in -> skip the login page entirely.
-  if (isAuthenticated) {
-    const redirectTo = location.state?.from?.pathname || "/admin/dashboard";
-    return <Navigate to={redirectTo} replace />;
-  }
+    if (isAuthenticated) {
+  return <Navigate to="/dashboard" replace />;
+}
 
   const validate = () => {
     const next = {};
@@ -54,8 +53,7 @@ export default function AdminLogin() {
     setSubmitting(true);
     try {
       await login({ email, password, rememberMe });
-      const redirectTo = location.state?.from?.pathname || "/admin/dashboard";
-      navigate(redirectTo, { replace: true });
+        navigate("/dashboard", { replace: true });
     } catch (err) {
       setAuthError(err.message || "Invalid login credentials");
     } finally {
@@ -174,7 +172,7 @@ export default function AdminLogin() {
             </form>
 
             <p className="login-hint">
-              Demo credentials — admin.jay@college.edu / admin123
+              Sign in using your admin account registered in the database.
             </p>
           </div>
         </div>

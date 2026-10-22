@@ -16,5 +16,7 @@ namespace backend.Data
 
         public DbSet<Complaint> Complaints { get; set; }
         public DbSet<ContactMessage> ContactMessages { get; set; }
+
+        public DbSet<Admin> Admins { get; set; }
     }
 }
