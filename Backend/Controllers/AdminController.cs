@@ -1,4 +1,5 @@
-﻿using backend.Data;
+﻿
+using backend.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,50 @@ namespace backend.Controllers
         public AdminManagementController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        // POST: api/AdminManagement/login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(
+            [FromBody] AdminLoginRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Email and password are required."
+                });
+            }
+
+            var email = request.Email.Trim();
+
+            var admin = await _context.Admins
+                .FirstOrDefaultAsync(a => a.Email == email);
+
+            // Assumes the existing database stores plain-text passwords.
+            if (admin == null || admin.Password != request.Password)
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "Invalid email or password."
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = "Login successful.",
+                user = new
+                {
+                    id = admin.Id,
+                    name = admin.Name,
+                    email = admin.Email,
+                    role = admin.Role
+                }
+            });
         }
 
         // GET: api/AdminManagement/users
@@ -48,7 +93,6 @@ namespace backend.Controllers
                 });
             }
 
-            // Remove this user's complaints first to avoid foreign-key errors.
             var userComplaints = await _context.Complaints
                 .Where(c => c.UserId == id)
                 .ToListAsync();
@@ -150,7 +194,6 @@ namespace backend.Controllers
                 });
             }
 
-            // Do not allow deletion of the final admin account.
             var adminCount = await _context.Admins.CountAsync();
 
             if (adminCount <= 1)
@@ -171,5 +214,11 @@ namespace backend.Controllers
                 message = "Admin deleted successfully."
             });
         }
+    }
+
+    public class AdminLoginRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }

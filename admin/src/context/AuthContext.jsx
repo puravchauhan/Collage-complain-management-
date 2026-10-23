@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 const STORAGE_KEY = "ccmp_admin_session";
-const API_URL = "https://localhost:7277/api/Admin/login";
+const API_URL = "https://localhost:7277/api/AdminManagement/login";
 
 const AuthContext = createContext(null);
 
@@ -29,11 +29,11 @@ function readStoredSession() {
 
 function saveSession(session) {
   const local = localStorage.getItem(STORAGE_KEY);
-  const sessionStored = sessionStorage.getItem(STORAGE_KEY);
+  const storedSession = sessionStorage.getItem(STORAGE_KEY);
 
   if (local !== null) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-  } else if (sessionStored !== null) {
+  } else if (storedSession !== null) {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   } else {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
@@ -50,33 +50,56 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async ({ email, password, rememberMe }) => {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email.trim(),
-        password,
-      }),
-    });
+    let response;
 
-    const data = await response.json();
+    try {
+      response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
+    } catch {
+      throw new Error(
+        "Cannot connect to the backend. Make sure your .NET API is running."
+      );
+    }
+
+    // Read the response safely to avoid Unexpected end of JSON input.
+    const responseText = await response.text();
+    let data = {};
+
+    if (responseText.trim()) {
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          `The server returned invalid JSON. HTTP ${response.status}.`
+        );
+      }
+    }
 
     if (!response.ok || data.success !== true) {
-      throw new Error(data.message || "Invalid email or password.");
+      throw new Error(
+        data.message ||
+          data.title ||
+          `Login failed. HTTP status ${response.status}.`
+      );
     }
 
     if (!data.user) {
-      throw new Error("User details were not returned by the server.");
+      throw new Error("Admin details were not returned by the server.");
     }
 
     const id = data.user.id ?? data.user.Id;
 
     if (id == null) {
-      throw new Error(
-        "Admin ID was not returned by the backend. Update the Admin login API to return admin.Id."
-      );
+      throw new Error("Admin ID was not returned by the backend.");
     }
 
     const session = {
@@ -101,9 +124,10 @@ export function AuthProvider({ children }) {
     return session;
   };
 
-  // Update the user in React and persist the updated profile.
   const updateUser = (updatedUser) => {
     setUser((currentUser) => {
+      if (!currentUser) return currentUser;
+
       const updated = {
         ...currentUser,
         ...updatedUser,
