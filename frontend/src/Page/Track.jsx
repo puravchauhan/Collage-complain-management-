@@ -7,273 +7,13 @@ function Track() {
   const [complaintId, setComplaintId] = useState("");
   const [complaint, setComplaint] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const complaints = {
-    "WO-1049": {
-      title: "Ceiling fan not working",
-      location: "Block C, Room 214",
-      category: "Electrical",
-      priority: "High",
-      status: "Open",
-      statusClass: "open",
-      date: "Aug 12, 2026",
-      technician: "Unassigned",
-      progress: 10,
-      eta: "Aug 13, 2026 (target)",
-      reporter: "Student (22CS1042)",
-      contact: "Maintenance Desk: ext. 204",
+  const API_URL = "https://localhost:7277/api/Complaint";
 
-      description:
-        "Fan makes a grinding noise and stopped spinning yesterday evening. Reported as high priority due to ongoing heat.",
-
-      photos: [],
-      remarks: [],
-
-      timeline: [
-        {
-          label: "Complaint Submitted",
-          time: "Aug 12, 9:14 AM",
-          note: "Filed by student — category: Electrical, priority: High.",
-          state: "done",
-        },
-        {
-          label: "Under Review",
-          time: "Aug 12, 11:40 AM",
-          note: "Awaiting assignment to a technician.",
-          state: "current",
-        },
-        {
-          label: "Assigned to Technician",
-          time: "—",
-          note: "",
-          state: "pending",
-        },
-        {
-          label: "Work In Progress",
-          time: "—",
-          note: "",
-          state: "pending",
-        },
-        {
-          label: "Resolved",
-          time: "—",
-          note: "",
-          state: "pending",
-        },
-      ],
-
-      activity: [
-        {
-          time: "Aug 12, 9:14 AM",
-          text: "Priya S. submitted this complaint.",
-        },
-        {
-          time: "Aug 12, 11:40 AM",
-          text: "Admin marked priority as High and flagged for urgent review.",
-        },
-      ],
-    },
-
-    "WO-1046": {
-      title: "Wi-Fi keeps dropping",
-      location: "Library, 2nd Floor",
-      category: "Wi-Fi / Network",
-      priority: "Medium",
-      status: "In Progress",
-      statusClass: "progress",
-      date: "Aug 9, 2026",
-      technician: "R. Nair (Network Team)",
-      progress: 55,
-      eta: "Aug 12, 2026 (target)",
-      reporter: "Student (21IT0987)",
-      contact: "R. Nair: ext. 118",
-
-      description:
-        "Connection drops every 10–15 minutes near the reading area, affecting multiple students during peak hours.",
-
-      photos: [
-        {
-          url: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=300&h=225&fit=crop",
-          caption: "Router — submitted",
-        },
-      ],
-
-      remarks: [
-        {
-          author: "R. Nair",
-          role: "Network Technician",
-          time: "Aug 11, 10:30 AM",
-          text: "Checked signal logs — access point AP-L204 is dropping connections under load. Ordered a replacement unit; expected to arrive tomorrow.",
-        },
-        {
-          author: "R. Nair",
-          role: "Network Technician",
-          time: "Aug 10, 9:20 AM",
-          text: "Visited the site and confirmed the issue is isolated to the reading area, not the whole library.",
-        },
-      ],
-
-      timeline: [
-        {
-          label: "Complaint Submitted",
-          time: "Aug 9, 2:02 PM",
-          note: "Filed by student — category: Wi-Fi / Network, priority: Medium.",
-          state: "done",
-        },
-        {
-          label: "Under Review",
-          time: "Aug 9, 4:15 PM",
-          note: "Reviewed by admin and confirmed as a recurring issue.",
-          state: "done",
-        },
-        {
-          label: "Assigned to Technician",
-          time: "Aug 10, 9:00 AM",
-          note: "Assigned to R. Nair, Network Team.",
-          state: "done",
-        },
-        {
-          label: "Work In Progress",
-          time: "Aug 11, 10:30 AM",
-          note: "Access point in the reading area identified as faulty; replacement ordered.",
-          state: "current",
-        },
-        {
-          label: "Resolved",
-          time: "—",
-          note: "",
-          state: "pending",
-        },
-      ],
-
-      activity: [
-        {
-          time: "Aug 9, 2:02 PM",
-          text: "Arjun M. submitted this complaint.",
-        },
-        {
-          time: "Aug 9, 4:15 PM",
-          text: "Admin confirmed this as a recurring issue and set priority to Medium.",
-        },
-        {
-          time: "Aug 10, 9:00 AM",
-          text: "Admin assigned this ticket to R. Nair (Network Team).",
-        },
-        {
-          time: "Aug 10, 9:20 AM",
-          text: "R. Nair added a remark after site visit.",
-        },
-        {
-          time: "Aug 11, 10:30 AM",
-          text: "R. Nair updated progress to 55% — replacement part ordered.",
-        },
-      ],
-    },
-
-    "WO-1038": {
-      title: "Leaking tap in washroom",
-      location: "Block C, 2nd Floor",
-      category: "Plumbing",
-      priority: "Medium",
-      status: "Resolved",
-      statusClass: "resolved",
-      date: "Aug 3, 2026",
-      technician: "S. Verma (Maintenance)",
-      progress: 100,
-      eta: "Resolved on Aug 5, 2026",
-      reporter: "Student (23ME1120)",
-      contact: "S. Verma: ext. 132",
-
-      description:
-        "Tap was replaced and tested — no further leakage observed after 48 hours of monitoring.",
-
-      photos: [
-        {
-          url: "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=300&h=225&fit=crop",
-          caption: "Before repair",
-        },
-        {
-          url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300&h=225&fit=crop",
-          caption: "After repair",
-        },
-      ],
-
-      remarks: [
-        {
-          author: "S. Verma",
-          role: "Plumbing Technician",
-          time: "Aug 5, 5:30 PM",
-          text: "Replaced the tap washer and fitting. Ran a 48-hour leak test — no issues found. Marking as resolved.",
-        },
-        {
-          author: "S. Verma",
-          role: "Plumbing Technician",
-          time: "Aug 4, 9:15 AM",
-          text: "Inspected the tap — worn washer confirmed as the cause. Replacement part fitted same day.",
-        },
-      ],
-
-      timeline: [
-        {
-          label: "Complaint Submitted",
-          time: "Aug 3, 8:20 AM",
-          note: "Filed by student — category: Plumbing, priority: Medium.",
-          state: "done",
-        },
-        {
-          label: "Under Review",
-          time: "Aug 3, 10:05 AM",
-          note: "Reviewed and approved for assignment.",
-          state: "done",
-        },
-        {
-          label: "Assigned to Technician",
-          time: "Aug 3, 1:00 PM",
-          note: "Assigned to S. Verma, Maintenance.",
-          state: "done",
-        },
-        {
-          label: "Work In Progress",
-          time: "Aug 4, 9:15 AM",
-          note: "Tap replaced; leak test in progress.",
-          state: "done",
-        },
-        {
-          label: "Resolved",
-          time: "Aug 5, 5:30 PM",
-          note: "Confirmed fixed. Awaiting student feedback.",
-          state: "done",
-        },
-      ],
-
-      activity: [
-        {
-          time: "Aug 3, 8:20 AM",
-          text: "Neha K. submitted this complaint.",
-        },
-        {
-          time: "Aug 3, 10:05 AM",
-          text: "Admin reviewed and approved for assignment.",
-        },
-        {
-          time: "Aug 3, 1:00 PM",
-          text: "Admin assigned this ticket to S. Verma (Maintenance).",
-        },
-        {
-          time: "Aug 4, 9:15 AM",
-          text: "S. Verma inspected the site and began repair.",
-        },
-        {
-          time: "Aug 5, 5:30 PM",
-          text: "S. Verma marked this complaint as Resolved.",
-        },
-      ],
-    },
-  };
-
-  // SEARCH COMPLAINT
-  const trackComplaint = () => {
-    const id = complaintId.trim().toUpperCase();
+  // SEARCH COMPLAINT FROM BACKEND
+  const trackComplaint = async (searchId = complaintId) => {
+    const id = searchId.trim().toUpperCase();
 
     if (!id) {
       setComplaint(null);
@@ -281,35 +21,184 @@ function Track() {
       return;
     }
 
-    if (complaints[id]) {
-      setComplaint(complaints[id]);
-      setComplaintId(id);
-      setError("");
+    setComplaintId(id);
+    setComplaint(null);
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/track/${encodeURIComponent(id)}`
+      );
+
+      const responseText = await response.text();
+      const data = responseText ? JSON.parse(responseText) : {};
+
+      if (!response.ok || !data.success || !data.complaint) {
+        throw new Error(
+          data.message ||
+            "No complaint found with that ID. Double-check the ticket number and try again."
+        );
+      }
+
+      const item = data.complaint;
+
+      // STATUS AND PROGRESS
+      const status = item.status || "Pending";
+
+      const statusAliases = {
+        Open: "Pending",
+        "Work In Progress": "In Progress",
+        Completed: "Resolved",
+      };
+
+      const normalizedStatus = statusAliases[status] || status;
+
+      const statusSteps = [
+        "Pending",
+        "Under Review",
+        "Assigned",
+        "In Progress",
+        "Resolved",
+      ];
+
+      const currentStep = statusSteps.indexOf(normalizedStatus);
+
+      const progressValues = [10, 25, 40, 65, 100];
+
+      const progress =
+        currentStep >= 0 ? progressValues[currentStep] : 10;
+
+      const statusClass =
+        normalizedStatus === "Resolved"
+          ? "resolved"
+          : normalizedStatus === "In Progress"
+          ? "progress"
+          : normalizedStatus === "Pending"
+          ? "open"
+          : "progress";
+
+      // DATE FORMAT
+      const createdDate = item.createdAt
+        ? new Date(item.createdAt)
+        : null;
+
+      const formattedDate =
+        createdDate && !isNaN(createdDate.getTime())
+          ? createdDate.toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "Not available";
+
+      const formattedTime =
+        createdDate && !isNaN(createdDate.getTime())
+          ? createdDate.toLocaleString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "Not available";
+
+      // STATUS TIMELINE
+      const timelineLabels = [
+        "Complaint Submitted",
+        "Under Review",
+        "Assigned to Technician",
+        "Work In Progress",
+        "Resolved",
+      ];
+
+      const timeline = timelineLabels.map((label, index) => {
+        let state = "pending";
+
+        if (currentStep >= 0 && index < currentStep) {
+          state = "done";
+        } else if (currentStep >= 0 && index === currentStep) {
+          state = "current";
+        }
+
+        if (normalizedStatus === "Resolved") {
+          state = "done";
+        }
+
+        return {
+          label,
+          time: index === 0 ? formattedTime : "—",
+          note:
+            index === 0
+              ? "Complaint submitted successfully."
+              : "",
+          state,
+        };
+      });
+
+      // COMPLAINT IMAGE
+      const photos = item.imagePath
+        ? [
+            {
+              url: item.imagePath.startsWith("http")
+                ? item.imagePath
+                : `https://localhost:7277${item.imagePath}`,
+              caption: "Complaint image",
+            },
+          ]
+        : [];
+
+      // MAP BACKEND DATA TO EXISTING UI
+      const complaintData = {
+        title: item.title || item.problem || "Complaint",
+        location: item.location || "Not available",
+        category: item.category || "Not available",
+        priority: item.priority || "Low",
+        status: normalizedStatus,
+        statusClass,
+        date: formattedDate,
+        technician: "Unassigned",
+        progress,
+        eta: "Not available",
+        reporter: "Not available",
+        contact: "Not available",
+        description: item.description || "No description available.",
+        photos,
+        remarks: [],
+        timeline,
+        activity: [
+          {
+            time: formattedTime,
+            text: "Complaint submitted successfully.",
+          },
+        ],
+      };
+
+      setComplaint(complaintData);
+      setComplaintId(item.complaintId || id);
 
       setTimeout(() => {
         document.getElementById("result")?.scrollIntoView({
           behavior: "smooth",
         });
       }, 100);
-    } else {
+    } catch (err) {
+      console.error("TRACK COMPLAINT ERROR:", err);
+
       setComplaint(null);
       setError(
-        "No complaint found with that ID. Double-check the ticket number and try again.",
+        err.message ||
+          "Unable to track complaint. Please try again."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
-  // SAMPLE COMPLAINT
+  // SAMPLE BUTTON - USES THE SAME BACKEND SEARCH
   const fillAndTrack = (id) => {
     setComplaintId(id);
-    setComplaint(complaints[id]);
-    setError("");
-
-    setTimeout(() => {
-      document.getElementById("result")?.scrollIntoView({
-        behavior: "smooth",
-      });
-    }, 100);
+    trackComplaint(id);
   };
 
   // PRIORITY CLASS
@@ -342,8 +231,8 @@ function Track() {
               <input
                 type="text"
                 className="form-control cf-input"
-                placeholder="e.g. WO-1049"
-                maxLength="12"
+                placeholder="e.g. CMP-2026-007"
+                maxLength="14"
                 value={complaintId}
                 onChange={(e) => setComplaintId(e.target.value)}
                 onKeyDown={(e) => {
@@ -357,9 +246,10 @@ function Track() {
             <div className="col-md-3">
               <button
                 className="cf-btn cf-btn-primary w-100 h-100"
-                onClick={trackComplaint}
+                onClick={() => trackComplaint()}
+                disabled={loading}
               >
-                Track →
+                {loading ? "Searching..." : "Track →"}
               </button>
             </div>
           </div>
@@ -369,23 +259,23 @@ function Track() {
             Try a sample:
             <button
               className="sample-btn"
-              onClick={() => fillAndTrack("WO-1049")}
+              onClick={() => fillAndTrack("CMP-2026-007")}
             >
-              WO-1049
+              CMP-2026-007
             </button>
             ,
             <button
               className="sample-btn"
-              onClick={() => fillAndTrack("WO-1046")}
+              onClick={() => fillAndTrack("CMP-2026-008")}
             >
-              WO-1046
+              CMP-2026-008
             </button>
             or
             <button
               className="sample-btn"
-              onClick={() => fillAndTrack("WO-1038")}
+              onClick={() => fillAndTrack("CMP-2026-009")}
             >
-              WO-1038
+              CMP-2026-009
             </button>
           </div>
 
@@ -403,9 +293,13 @@ function Track() {
                 <div>
                   <div className="result-id">{complaintId}</div>
 
-                  <h2 className="result-title mb-1">{complaint.title}</h2>
+                  <h2 className="result-title mb-1">
+                    {complaint.title}
+                  </h2>
 
-                  <div className="result-location">{complaint.location}</div>
+                  <div className="result-location">
+                    {complaint.location}
+                  </div>
                 </div>
 
                 {/* STATUS */}
@@ -426,7 +320,10 @@ function Track() {
 
                 <Meta label="Filed On" value={complaint.date} />
 
-                <Meta label="Assigned To" value={complaint.technician} />
+                <Meta
+                  label="Assigned To"
+                  value={complaint.technician}
+                />
               </div>
 
               {/* DESCRIPTION */}
@@ -436,13 +333,25 @@ function Track() {
 
               {/* EXTRA INFO */}
               <div className="result-meta-row row g-0">
-                <Meta label="Complaint ID Ref" value={`${complaintId}-2026`} />
+                <Meta
+                  label="Complaint ID Ref"
+                  value={complaintId}
+                />
 
-                <Meta label="Est. Resolution" value={complaint.eta} />
+                <Meta
+                  label="Est. Resolution"
+                  value={complaint.eta}
+                />
 
-                <Meta label="Reported By" value={complaint.reporter} />
+                <Meta
+                  label="Reported By"
+                  value={complaint.reporter}
+                />
 
-                <Meta label="Contact" value={complaint.contact} />
+                <Meta
+                  label="Contact"
+                  value={complaint.contact}
+                />
               </div>
 
               {/* PROGRESS */}
@@ -472,7 +381,9 @@ function Track() {
                   <div className="photo-thumb" key={index}>
                     <img src={photo.url} alt={photo.caption} />
 
-                    <div className="photo-caption">{photo.caption}</div>
+                    <div className="photo-caption">
+                      {photo.caption}
+                    </div>
                   </div>
                 ))
               ) : (
@@ -498,7 +409,9 @@ function Track() {
                         {remark.role}
                       </span>
 
-                      <span className="search-hint">{remark.time}</span>
+                      <span className="search-hint">
+                        {remark.time}
+                      </span>
                     </div>
 
                     <div className="remark-text">{remark.text}</div>
@@ -514,9 +427,12 @@ function Track() {
             {/* STATUS TIMELINE */}
             <SectionTitle title="Status Timeline" />
 
-            <div className="timeline ps-4 mb-4 ">
+            <div className="timeline ps-4 mb-4">
               {complaint.timeline.map((item, index) => (
-                <div className={`timeline-item ${item.state} pb-4`} key={index}>
+                <div
+                  className={`timeline-item ${item.state} pb-4`}
+                  key={index}
+                >
                   <div className="timeline-dot">
                     {item.state === "done" && "✓"}
 
@@ -530,7 +446,9 @@ function Track() {
                       <span className="search-hint">{item.time}</span>
                     </div>
 
-                    {item.note && <p className="mb-0 mt-1">{item.note}</p>}
+                    {item.note && (
+                      <p className="mb-0 mt-1">{item.note}</p>
+                    )}
                   </div>
                 </div>
               ))}

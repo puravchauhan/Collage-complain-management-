@@ -139,6 +139,81 @@ namespace backend.Controllers
             }
         }
 
+
+
+        // GET: api/Complaint/track/CMP-2026-007
+        [HttpGet("track/{complaintNumber}")]
+        public async Task<IActionResult> TrackComplaint(string complaintNumber)
+        {
+            try
+            {
+                // Check complaint number format: CMP-YYYY-XXX
+                var parts = complaintNumber.Split('-');
+
+                if (parts.Length != 3 ||
+                    parts[0] != "CMP" ||
+                    !int.TryParse(parts[1], out int year) ||
+                    !int.TryParse(parts[2], out int number))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Invalid complaint ID format. Use CMP-2026-007."
+                    });
+                }
+
+                var complaint = await _context.Complaints
+                    .AsNoTracking()
+                    .Where(c =>
+                        c.Id == number &&
+                        c.CreatedAt.Year == year)
+                    .Select(c => new
+                    {
+                        complaintId = "CMP-" +
+                            c.CreatedAt.Year + "-" +
+                            c.Id.ToString("D3"),
+
+                        id = c.Id,
+                        title = c.Problem,
+                        category = c.Category,
+                        priority = c.Priority,
+                        location = c.Location,
+                        description = c.Description,
+                        status = c.Status,
+                        createdAt = c.CreatedAt,
+                        imagePath = c.ImagePath
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (complaint == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Complaint not found. Please check your complaint ID."
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    complaint
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error tracking complaint.",
+                    error = ex.Message
+                });
+            }
+        }
+
+
         // GET: api/Complaint/all
         // Get all complaints for the admin dashboard
         [HttpGet("all")]
