@@ -8,7 +8,13 @@ const NAV_ITEMS = [
   { icon: "bi-person-circle", label: "Profile", key: "profile" },
 ];
 
-export default function Sidebar({ open, onClose, active, onNavigate }) {
+export default function Sidebar({
+  open,
+  onClose,
+  active,
+  onNavigate,
+  onLogout,
+}) {
   return (
     <>
       <aside className={`sidebar ${open ? "open" : ""}`}>
@@ -25,7 +31,9 @@ export default function Sidebar({ open, onClose, active, onNavigate }) {
             <a
               key={item.key}
               href="#"
-              className={`nav-link ${active === item.key ? "active" : ""}`}
+              className={`nav-link ${
+                active === item.key ? "active" : ""
+              }`}
               onClick={(e) => {
                 e.preventDefault();
                 onNavigate(item.key);
@@ -37,14 +45,17 @@ export default function Sidebar({ open, onClose, active, onNavigate }) {
             </a>
           ))}
 
-          <a
-            href="#"
-            className="nav-link"
-            onClick={(e) => e.preventDefault()}
-          >
-            <i className="bi bi-box-arrow-right"></i>
-            <span>Logout</span>
-          </a>
+        <a
+  href="#"
+  className="nav-link"
+  onClick={(e) => {
+    e.preventDefault();
+    onLogout();
+  }}
+>
+  <i className="bi bi-box-arrow-right"></i>
+  <span>Logout</span>
+</a>
         </nav>
 
         <div className="sidebar-foot">
@@ -54,7 +65,6 @@ export default function Sidebar({ open, onClose, active, onNavigate }) {
         </div>
       </aside>
 
-      {/* backdrop for mobile */}
       <div
         className={`sidebar-backdrop ${open ? "show" : ""}`}
         onClick={onClose}

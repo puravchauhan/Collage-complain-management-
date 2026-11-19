@@ -6,6 +6,10 @@
 
         public int UserId { get; set; }
 
+        public int? TechnicianId { get; set; }
+
+        public Technician? Technician { get; set; }
+
         public string Category { get; set; } = "";
 
         public string Problem { get; set; } = "";

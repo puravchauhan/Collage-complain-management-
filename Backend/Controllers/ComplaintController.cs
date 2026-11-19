@@ -16,8 +16,11 @@ namespace backend.Controllers
             _context = context;
         }
 
+        // ==========================================
+        // 1. CREATE COMPLAINT
         // POST: api/Complaint
-        // Submit a new complaint
+        // ==========================================
+
         [HttpPost]
         public async Task<IActionResult> CreateComplaint(
             [FromForm] Complaint complaint,
@@ -25,7 +28,6 @@ namespace backend.Controllers
         {
             try
             {
-                // Check User ID
                 if (complaint.UserId <= 0)
                 {
                     return BadRequest(new
@@ -35,7 +37,6 @@ namespace backend.Controllers
                     });
                 }
 
-                // Check required fields
                 if (string.IsNullOrWhiteSpace(complaint.Category) ||
                     string.IsNullOrWhiteSpace(complaint.Problem) ||
                     string.IsNullOrWhiteSpace(complaint.Priority) ||
@@ -49,7 +50,7 @@ namespace backend.Controllers
                     });
                 }
 
-                // Upload image if provided
+                // Upload complaint image
                 if (Image != null && Image.Length > 0)
                 {
                     var uploadsFolder = Path.Combine(
@@ -81,11 +82,10 @@ namespace backend.Controllers
                     complaint.ImagePath = "/uploads/" + fileName;
                 }
 
-                // Set default values
                 complaint.Status = "Pending";
+                complaint.TechnicianId = null;
                 complaint.CreatedAt = DateTime.Now;
 
-                // Save complaint to database
                 _context.Complaints.Add(complaint);
 
                 await _context.SaveChangesAsync();
@@ -99,7 +99,6 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("COMPLAINT ERROR:");
                 Console.WriteLine(ex.ToString());
 
                 return StatusCode(500, new
@@ -111,8 +110,12 @@ namespace backend.Controllers
             }
         }
 
+
+        // ==========================================
+        // 2. GET STUDENT COMPLAINTS
         // GET: api/Complaint/student/{userId}
-        // Get complaints belonging to a specific student
+        // ==========================================
+
         [HttpGet("student/{userId}")]
         public async Task<IActionResult> GetStudentComplaints(int userId)
         {
@@ -133,21 +136,23 @@ namespace backend.Controllers
                 return StatusCode(500, new
                 {
                     success = false,
-                    message = "Error loading student complaints.",
-                    error = ex.Message
+                    message = "Error loading student complaints."
                 });
             }
         }
 
 
-
+        // ==========================================
+        // 3. TRACK COMPLAINT
         // GET: api/Complaint/track/CMP-2026-007
+        // ==========================================
+
         [HttpGet("track/{complaintNumber}")]
-        public async Task<IActionResult> TrackComplaint(string complaintNumber)
+        public async Task<IActionResult> TrackComplaint(
+            string complaintNumber)
         {
             try
             {
-                // Check complaint number format: CMP-YYYY-XXX
                 var parts = complaintNumber.Split('-');
 
                 if (parts.Length != 3 ||
@@ -181,7 +186,8 @@ namespace backend.Controllers
                         description = c.Description,
                         status = c.Status,
                         createdAt = c.CreatedAt,
-                        imagePath = c.ImagePath
+                        imagePath = c.ImagePath,
+                        technicianId = c.TechnicianId
                     })
                     .FirstOrDefaultAsync();
 
@@ -207,15 +213,17 @@ namespace backend.Controllers
                 return StatusCode(500, new
                 {
                     success = false,
-                    message = "Error tracking complaint.",
-                    error = ex.Message
+                    message = "Error tracking complaint."
                 });
             }
         }
 
 
+        // ==========================================
+        // 4. GET ALL COMPLAINTS
         // GET: api/Complaint/all
-        // Get all complaints for the admin dashboard
+        // ==========================================
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAllComplaints()
         {
@@ -235,6 +243,7 @@ namespace backend.Controllers
                         status = c.Status,
                         date = c.CreatedAt,
                         userId = c.UserId,
+                        technicianId = c.TechnicianId,
                         imagePath = c.ImagePath
                     })
                     .ToListAsync();
@@ -248,10 +257,245 @@ namespace backend.Controllers
                 return StatusCode(500, new
                 {
                     success = false,
-                    message = "Error loading all complaints.",
-                    error = ex.Message
+                    message = "Error loading all complaints."
                 });
             }
         }
+
+
+        // ==========================================
+        // 5. GET TECHNICIAN ASSIGNED COMPLAINTS
+        // GET: api/Complaint/technician/{technicianId}
+        // ==========================================
+
+        [HttpGet("technician/{technicianId}")]
+        public async Task<IActionResult> GetTechnicianComplaints(
+            int technicianId)
+        {
+            try
+            {
+                var technicianExists = await _context.Technicians
+                    .AnyAsync(t =>
+                        t.TechnicianId == technicianId &&
+                        t.IsApproved);
+
+                if (!technicianExists)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Approved technician not found."
+                    });
+                }
+
+                var complaints = await _context.Complaints
+                    .AsNoTracking()
+                    .Where(c => c.TechnicianId == technicianId)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Select(c => new
+                    {
+                        id = c.Id,
+                        title = c.Problem,
+                        category = c.Category,
+                        priority = c.Priority,
+                        location = c.Location,
+                        description = c.Description,
+                        status = c.Status,
+                        createdAt = c.CreatedAt
+                    })
+                    .ToListAsync();
+
+                return Ok(complaints);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Unable to load assigned complaints."
+                });
+            }
+        }
+
+
+        // ==========================================
+        // 6. ASSIGN TECHNICIAN TO COMPLAINT
+        // PUT: api/Complaint/{id}/assign
+        // ==========================================
+
+        [HttpPut("{id}/assign")]
+        public async Task<IActionResult> AssignTechnician(
+            int id,
+            [FromBody] AssignTechnicianRequest request)
+        {
+            try
+            {
+                if (request == null || request.TechnicianId <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Valid technician ID is required."
+                    });
+                }
+
+                var complaint = await _context.Complaints
+                    .FindAsync(id);
+
+                if (complaint == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Complaint not found."
+                    });
+                }
+
+                // Only approved technicians can be assigned
+                var technician = await _context.Technicians
+                    .FirstOrDefaultAsync(t =>
+                        t.TechnicianId == request.TechnicianId &&
+                        t.IsApproved);
+
+                if (technician == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Technician not found or not approved."
+                    });
+                }
+
+                complaint.TechnicianId = technician.TechnicianId;
+                complaint.Status = "Assigned";
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Technician assigned successfully.",
+                    technicianId = technician.TechnicianId,
+                    technicianName = technician.Name,
+                    complaintId = complaint.Id
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Unable to assign technician."
+                });
+            }
+        }
+
+
+        // ==========================================
+        // 7. UPDATE COMPLAINT STATUS
+        // PUT: api/Complaint/{id}/status
+        // ==========================================
+
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateComplaintStatus(
+            int id,
+            [FromBody] UpdateComplaintStatusRequest request)
+        {
+            try
+            {
+                if (request == null ||
+                    request.TechnicianId <= 0 ||
+                    string.IsNullOrWhiteSpace(request.Status))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Technician ID and status are required."
+                    });
+                }
+
+                var complaint = await _context.Complaints
+                    .FindAsync(id);
+
+                if (complaint == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Complaint not found."
+                    });
+                }
+
+                // Check that complaint belongs to this technician
+                if (complaint.TechnicianId != request.TechnicianId)
+                {
+                    return Forbid();
+                }
+
+                // Check technician approval
+                var approved = await _context.Technicians
+                    .AnyAsync(t =>
+                        t.TechnicianId == request.TechnicianId &&
+                        t.IsApproved);
+
+                if (!approved)
+                {
+                    return Forbid();
+                }
+
+                if (request.Status != "In Progress" &&
+                    request.Status != "Resolved")
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Only In Progress or Resolved status is allowed."
+                    });
+                }
+
+                complaint.Status = request.Status;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Complaint status updated successfully.",
+                    complaintId = complaint.Id,
+                    status = complaint.Status
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Unable to update complaint status."
+                });
+            }
+        }
+    }
+
+
+    // ==========================================
+    // REQUEST MODELS
+    // ==========================================
+
+    public class AssignTechnicianRequest
+    {
+        public int TechnicianId { get; set; }
+    }
+
+    public class UpdateComplaintStatusRequest
+    {
+        public int TechnicianId { get; set; }
+
+        public string Status { get; set; } = "";
     }
 }

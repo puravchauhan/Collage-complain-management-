@@ -6,12 +6,16 @@ const CATEGORY_ICON = {
   Electrical: "bi-lightning-charge-fill",
   Furniture: "bi-tools",
   Equipment: "bi-cpu-fill",
+  "Wi-Fi & Internet": "bi-wifi",
+  "Water & Plumbing": "bi-droplet-fill",
+  Electricity: "bi-lightning-charge-fill",
 };
 
 const STATUS_CLASS = {
   Pending: "pending",
   "In Progress": "progress",
   Assigned: "assigned",
+  Resolved: "done",
   Done: "done",
 };
 
@@ -21,27 +25,48 @@ const PRIORITY_CLASS = {
   Low: "priority-low",
 };
 
-const STATUS_CYCLE = ["Assigned", "Pending", "In Progress", "Done"];
+export default function ComplaintsTable({
+  jobs = [],
+  onUpdateStatus,
+}) {
+  const [updatingId, setUpdatingId] = useState(null);
 
-export default function ComplaintsTable({ initialJobs }) {
-  const [jobs, setJobs] = useState(initialJobs);
+  const getNextStatus = (status) => {
+    if (status === "Assigned") return "In Progress";
+    if (status === "In Progress") return "Resolved";
+    return null;
+  };
 
-  const advanceStatus = (id) => {
-    setJobs((prev) =>
-      prev.map((job) => {
-        if (job.id !== id) return job;
-        const idx = STATUS_CYCLE.indexOf(job.status);
-        const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
-        return { ...job, status: next };
-      })
-    );
+  const handleUpdate = async (job) => {
+    const nextStatus = getNextStatus(job.status);
+
+    if (!nextStatus || updatingId !== null) return;
+
+    try {
+      setUpdatingId(job.id);
+
+      await onUpdateStatus(job.id, nextStatus);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const getButtonText = (status) => {
+    if (status === "Assigned") return "Start Work";
+    if (status === "In Progress") return "Mark Resolved";
+    if (status === "Resolved") return "Completed";
+    return "Waiting";
   };
 
   return (
     <div className="ticket-panel">
       <div className="panel-head">
         <h2>Assigned Complaints</h2>
-        <span className="text-secondary" style={{ fontSize: "0.8rem" }}>
+
+        <span
+          className="text-secondary"
+          style={{ fontSize: "0.8rem" }}
+        >
           {jobs.length} work orders
         </span>
       </div>
@@ -57,62 +82,146 @@ export default function ComplaintsTable({ initialJobs }) {
         <div className="cell">Action</div>
       </div>
 
-      {jobs.map((job) => (
-        <React.Fragment key={job.id}>
-          {/* Desktop row */}
-          <div className="ticket-row">
-            <div className={`stripe ${PRIORITY_CLASS[job.priority]}`}></div>
-            <div className="cell job-id">#{job.id}</div>
-            <div className="cell">
-              <div className="job-title">{job.title}</div>
-              <div className="job-meta">{job.location}</div>
-            </div>
-            <div className="cell">
-              <span className="badge-cat">
-                <i className={`bi ${CATEGORY_ICON[job.category] || "bi-tag-fill"}`}></i>
-                {job.category}
-              </span>
-            </div>
-            <div className="cell">
-              <span style={{ color: priorityColor(job.priority), fontWeight: 600, fontSize: "0.82rem" }}>
-                {job.priority}
-              </span>
-            </div>
-            <div className="cell">
-              <span className={`badge-status ${STATUS_CLASS[job.status]}`}>
-                <i className="bi bi-circle-fill" style={{ fontSize: "0.5rem" }}></i>
-                {job.status}
-              </span>
-            </div>
-            <div className="cell">
-              <button className="btn-ticket" onClick={() => advanceStatus(job.id)}>
-                <i className="bi bi-arrow-clockwise me-1"></i>
-                Update
-              </button>
-            </div>
-          </div>
+      {jobs.length === 0 && (
+        <div className="empty-state">
+          No complaints assigned to you yet.
+        </div>
+      )}
 
-          {/* Mobile card */}
-          <div className={`ticket-card ${PRIORITY_CLASS[job.priority]}`}>
-            <div className="d-flex justify-content-between align-items-start mb-1">
-              <span className="job-id">#{job.id}</span>
-              <span className={`badge-status ${STATUS_CLASS[job.status]}`}>{job.status}</span>
+      {jobs.map((job) => {
+        const nextStatus = getNextStatus(job.status);
+        const isUpdating = updatingId === job.id;
+
+        return (
+          <React.Fragment key={job.id}>
+            {/* Desktop row */}
+            <div className="ticket-row">
+              <div
+                className={`stripe ${
+                  PRIORITY_CLASS[job.priority] || ""
+                }`}
+              ></div>
+
+              <div className="cell job-id">
+                #{job.id}
+              </div>
+
+              <div className="cell">
+                <div className="job-title">
+                  {job.title}
+                </div>
+
+                <div className="job-meta">
+                  {job.location}
+                </div>
+              </div>
+
+              <div className="cell">
+                <span className="badge-cat">
+                  <i
+                    className={`bi ${
+                      CATEGORY_ICON[job.category] || "bi-tag-fill"
+                    }`}
+                  ></i>
+                  {job.category}
+                </span>
+              </div>
+
+              <div className="cell">
+                <span
+                  style={{
+                    color: priorityColor(job.priority),
+                    fontWeight: 600,
+                    fontSize: "0.82rem",
+                  }}
+                >
+                  {job.priority}
+                </span>
+              </div>
+
+              <div className="cell">
+                <span
+                  className={`badge-status ${
+                    STATUS_CLASS[job.status] || "pending"
+                  }`}
+                >
+                  <i
+                    className="bi bi-circle-fill"
+                    style={{ fontSize: "0.5rem" }}
+                  ></i>
+                  {job.status}
+                </span>
+              </div>
+
+              <div className="cell">
+                <button
+                  type="button"
+                  className="btn-ticket"
+                  disabled={!nextStatus || isUpdating || updatingId !== null}
+                  onClick={() => handleUpdate(job)}
+                >
+                  <i className="bi bi-arrow-clockwise me-1"></i>
+                  {isUpdating
+                    ? "Updating..."
+                    : getButtonText(job.status)}
+                </button>
+              </div>
             </div>
-            <div className="job-title">{job.title}</div>
-            <div className="job-meta mb-2">{job.location}</div>
-            <div className="d-flex justify-content-between align-items-center">
-              <span className="badge-cat">
-                <i className={`bi ${CATEGORY_ICON[job.category] || "bi-tag-fill"}`}></i>
-                {job.category}
-              </span>
-              <button className="btn-ticket" onClick={() => advanceStatus(job.id)}>
-                <i className="bi bi-arrow-clockwise me-1"></i>
-                Update
-              </button>
+
+            {/* Mobile card */}
+            <div
+              className={`ticket-card ${
+                PRIORITY_CLASS[job.priority] || ""
+              }`}
+            >
+              <div className="d-flex justify-content-between align-items-start mb-1">
+                <span className="job-id">
+                  #{job.id}
+                </span>
+
+                <span
+                  className={`badge-status ${
+                    STATUS_CLASS[job.status] || "pending"
+                  }`}
+                >
+                  {job.status}
+                </span>
+              </div>
+
+              <div className="job-title">
+                {job.title}
+              </div>
+
+              <div className="job-meta mb-2">
+                {job.location}
+              </div>
+
+              <div className="d-flex justify-content-between align-items-center">
+                <span className="badge-cat">
+                  <i
+                    className={`bi ${
+                      CATEGORY_ICON[job.category] || "bi-tag-fill"
+                    }`}
+                  ></i>
+                  {job.category}
+                </span>
+
+                <button
+                  type="button"
+                  className="btn-ticket"
+                  disabled={!nextStatus || isUpdating || updatingId !== null}
+                  onClick={() => handleUpdate(job)}
+                >
+                  <i className="bi bi-arrow-clockwise me-1"></i>
+                  {isUpdating
+                    ? "Updating..."
+                    : getButtonText(job.status)}
+                </button>
+              </div>
             </div>
-          </div>
-        </React.Fragment>
-      ))}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }

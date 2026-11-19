@@ -89,10 +89,15 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("TechnicianId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TechnicianId");
 
                     b.ToTable("Complaints");
                 });
@@ -147,6 +152,41 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LoginHistories");
+                });
+
+            modelBuilder.Entity("backend.Models.Technician", b =>
+                {
+                    b.Property<int>("TechnicianId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TechnicianId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TechnicianId");
+
+                    b.ToTable("Technicians");
                 });
 
             modelBuilder.Entity("backend.Models.User", b =>
@@ -204,6 +244,15 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("backend.Models.Complaint", b =>
+                {
+                    b.HasOne("backend.Models.Technician", "Technician")
+                        .WithMany()
+                        .HasForeignKey("TechnicianId");
+
+                    b.Navigation("Technician");
                 });
 #pragma warning restore 612, 618
         }

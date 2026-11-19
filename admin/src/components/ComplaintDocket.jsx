@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Clock,
@@ -10,7 +9,6 @@ import {
   CATEGORY_META,
   STATUS_META,
   PRIORITY_META,
-  TECHNICIANS,
 } from "../data/mockData";
 
 import IconBadge from "./IconBadge";
@@ -21,18 +19,15 @@ export default function ComplaintDocket({
   onAssignClick,
   assignOpenId,
   onAssign,
+  approvedTechnicians = [],
   autoAssignSuggestions,
 }) {
-  // Prevent errors if complaint data is missing
-  if (!c) {
-    return null;
-  }
+  if (!c) return null;
 
   const categoryName = c.category || "Other Issues";
   const statusName = c.status || "Pending";
   const priorityName = c.priority || "Medium";
 
-  // Category fallback
   const cat =
     CATEGORY_META[categoryName] ||
     CATEGORY_META["Other Issues"] ||
@@ -42,7 +37,6 @@ export default function ComplaintDocket({
       bg: "#EEF0EC",
     };
 
-  // Status fallback
   const status =
     STATUS_META[statusName] ||
     STATUS_META["Pending"] ||
@@ -51,7 +45,6 @@ export default function ComplaintDocket({
       bg: "#EEF0EC",
     };
 
-  // Priority fallback
   const priority =
     PRIORITY_META[priorityName] ||
     PRIORITY_META["Medium"] ||
@@ -60,7 +53,6 @@ export default function ComplaintDocket({
       bg: "#EEF0EC",
     };
 
-  // Support both mock data and backend data
   const complaintTitle =
     c.title || c.problem || "Untitled complaint";
 
@@ -90,24 +82,22 @@ export default function ComplaintDocket({
     });
   })();
 
-  // Find the assigned technician
-  const tech = TECHNICIANS.find(
+  // Find assigned technician from approved database list
+  const assignedId = c.technicianId ?? c.technician;
+
+  const tech = approvedTechnicians.find(
     (technician) =>
-      technician.id === c.technician ||
-      technician.id === c.technicianId
+      String(technician.technicianId) === String(assignedId)
   );
 
   const isAssignOpen = assignOpenId === c.id;
 
-  // Technician suggestions
-  const techChoices = autoAssignSuggestions
-    ? [...TECHNICIANS].sort(
-        (a, b) => (b.rating || 0) - (a.rating || 0)
-      )
-    : TECHNICIANS;
+  // Only approved technicians are shown
+  const techChoices = [...approvedTechnicians];
 
   return (
     <div className="docket">
+
       {/* Complaint ticket stub */}
       <div className="docket-stub">
         <IconBadge
@@ -187,6 +177,7 @@ export default function ComplaintDocket({
 
           {/* Technician assignment */}
           <div style={{ position: "relative" }}>
+
             {tech ? (
               <span className="docket-tech">
                 <span className="docket-tech-avatar">
@@ -202,36 +193,39 @@ export default function ComplaintDocket({
               <button
                 type="button"
                 className="assign-btn"
-                onClick={() =>
-                  onAssignClick?.(c.id)
-                }
+                onClick={() => onAssignClick?.(c.id)}
               >
                 <UserPlus size={14} />
                 Assign technician
               </button>
             )}
 
+            {/* Dynamic technician dropdown */}
             {isAssignOpen && (
               <div className="assign-menu">
+
                 <div className="assign-menu-title">
                   {autoAssignSuggestions
-                    ? "Suggested (by rating)"
+                    ? "Approved technicians"
                     : "Choose technician"}
                 </div>
 
                 {techChoices.length === 0 ? (
                   <div className="assign-menu-item">
-                    No technicians available.
+                    No approved technicians available.
                   </div>
                 ) : (
                   techChoices.map((technician) => (
                     <div
-                      key={technician.id}
+                      key={technician.technicianId}
                       className="assign-menu-item"
                       role="button"
                       tabIndex={0}
                       onClick={() =>
-                        onAssign?.(c.id, technician.id)
+                        onAssign?.(
+                          c.id,
+                          technician.technicianId
+                        )
                       }
                       onKeyDown={(event) => {
                         if (
@@ -239,7 +233,11 @@ export default function ComplaintDocket({
                           event.key === " "
                         ) {
                           event.preventDefault();
-                          onAssign?.(c.id, technician.id);
+
+                          onAssign?.(
+                            c.id,
+                            technician.technicianId
+                          );
                         }
                       }}
                     >
@@ -249,17 +247,13 @@ export default function ComplaintDocket({
                         </div>
 
                         <div className="assign-menu-item-sub">
-                          {technician.specialty || "General maintenance"}
-                          {" · "}
-                          {technician.active ?? 0} active
+                          {technician.email}
+                        </div>
+
+                        <div className="assign-menu-item-sub">
+                          {technician.phone}
                         </div>
                       </div>
-
-                      {autoAssignSuggestions && (
-                        <span className="assign-menu-item-rating">
-                          ★ {technician.rating ?? "N/A"}
-                        </span>
-                      )}
                     </div>
                   ))
                 )}
